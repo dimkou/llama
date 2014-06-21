@@ -156,6 +156,12 @@ class VariableDef(Def):
         self.name = name
         self.type = type
 
+class ConstantDef(Def):
+    def __init__(self, name, body, type=None):
+        self.name = name
+        self.body = body
+        self.type = type
+
 class ArrayVariableDef(VariableDef):
     def __init__(self, name, dimensions, itemType=None):
         self.name = name
