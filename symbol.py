@@ -32,6 +32,10 @@ class Variable(Entry):
     def __init__(self, vdef, scope):
         super().__init__(vdef.name, vdef.type, scope)
 
+class Constant(Entry):
+    def __init__(self, constdef, scope):
+        super().__init__(constdef.name, constdef.type, scope)
+        self.value = constdef.value
 
 class Scope:
     """
@@ -191,3 +195,9 @@ class SymbolTable:
         new_entry = Variable(vdef, self.cur_scope)
         self._insert_entry(new_entry, guard)
         return new_entry
+
+    def new_constant(self, constdef, guard):
+        new_entry = Constant(constdef, self.cur_scope)
+        self._insert_entry(new_entry, guard)
+        return new_entry
+
