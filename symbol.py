@@ -28,6 +28,10 @@ class Entry:
         self.type = type
         # TODO: Initialize lineno and lexpos
 
+class Variable(Entry):
+    def __init__(self, vdef, scope):
+        super().__init__(vdef.name, vdef.type, scope)
+
 
 class Scope:
     """
@@ -183,4 +187,7 @@ class SymbolTable:
         self.hash_table[new_entry.identifier].append(new_entry)
         self.cur_scope.entries.append(new_entry)
 
+    def new_variable(self, vdef, guard):
+        new_entry = Variable(vdef, self.cur_scope)
+        self._insert_entry(new_entry, guard)
         return new_entry
