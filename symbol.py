@@ -17,13 +17,15 @@ class Entry:
     """An entry of the symbol table. It knows which scope it's in."""
     identifier = None
     scope = None
+    type  = None
 
     lexpos = None
     lineno = None
 
-    def __init__(self, identifier, scope):
+    def __init__(self, identifier, type, scope):
         self.identifier = identifier
         self.scope = scope
+        self.type = type
         # TODO: Initialize lineno and lexpos
 
 
@@ -74,7 +76,8 @@ class SymbolTable:
         )
 
         for identifier in lib_namespace:
-            entry = Entry(identifier, lib_scope)
+            # FIXME: Add types for library functions
+            entry = Entry(identifier, None, lib_scope)
             lib_scope.entries.append(entry)
 
         self._push_scope(lib_scope)
