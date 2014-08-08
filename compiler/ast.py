@@ -152,6 +152,13 @@ class LetDef(ListNode):
         self.isRec = isRec
 
 
+class ConstantDef(Def):
+    def __init__(self, name, body, type=None):
+        self.name = name
+        self.body = body
+        self.type = type
+
+
 class FunctionDef(Def):
     def __init__(self, name, params, body, type=None):
         self.name = name

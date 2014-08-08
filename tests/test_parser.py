@@ -81,20 +81,25 @@ class TestParserRules(unittest.TestCase):
     def test_letdef(self):
         parse.quiet_parse("let x = 1", "letdef").should.equal(
             ast.LetDef(
-                [ast.FunctionDef("x", [], self.one)]
+                [ast.ConstantDef("x", self.one)]
             )
         )
         parse.quiet_parse("let rec x = 1", "letdef").should.equal(
             ast.LetDef(
-                [ast.FunctionDef("x", [], self.one)], True
+                [ast.ConstantDef("x", self.one)], True
             )
         )
 
-    def test_function_def(self):
+    def test_constant_def(self):
         parse.quiet_parse("let x = 1", "def").should.equal(
-            ast.FunctionDef("x", [], self.one)
+            ast.ConstantDef("x", self.one)
         )
 
+        parse.quiet_parse("let x : int = 1", "def").should.equal(
+            ast.ConstantDef("x", self.one, ast.Int())
+        )
+
+    def test_function_def(self):
         parse.quiet_parse("let x y (z:int) = 1", "def").should.equal(
             ast.FunctionDef(
                 "x",
@@ -110,14 +115,14 @@ class TestParserRules(unittest.TestCase):
             )
         )
 
-    def test_param_list(self):
-        parse.quiet_parse("", "param_list").should.equal([])
+    def test_param_seq(self):
+        self._assert_parse_fails("", "param_seq")
 
-        parse.quiet_parse("my_param", "param_list").should.equal(
+        parse.quiet_parse("my_param", "param_seq").should.equal(
             [ast.Param("my_param")]
         )
 
-        parse.quiet_parse("a b", "param_list").should.equal(
+        parse.quiet_parse("a b", "param_seq").should.equal(
             [ast.Param("a"), ast.Param("b")]
         )
 
