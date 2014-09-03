@@ -43,73 +43,6 @@ class RefOfArrayError(InvalidTypeError):
     pass
 
 
-def is_array(t):
-    """Check if a type is an array type."""
-    return isinstance(t, ast.Array)
-
-
-def _validate_array(t):
-    """An 'array of T' type is valid iff T is a valid, non-array type."""
-    basetype = t.type
-    if is_array(basetype):
-        raise ArrayOfArrayError(t)
-    validate(basetype)
-
-
-def _validate_builtin(_):
-    """A builtin type is always valid."""
-    pass
-
-
-def _validate_function(t):
-    """
-    A 'T1 -> T2' type is valid iff T1 is a valid type and T2 is a
-    valid, non-array type.
-    """
-    t1, t2 = t.fromType, t.toType
-    if is_array(t2):
-        raise ArrayReturnError(t)
-    validate(t1)
-    validate(t2)
-
-
-def _validate_ref(t):
-    """A 'ref T' type is valid iff T is a valid, non-array type."""
-    basetype = t.type
-    if is_array(basetype):
-        raise RefOfArrayError(t)
-    validate(basetype)
-
-
-def _validate_user(_):
-    """A user-defined type is always valid."""
-    pass
-
-_dispatcher = {
-    # Bulk-add dispatching for builtin types.
-    typecon: _validate_builtin
-    for typecon in ast.builtin_types_map.values()
-}
-
-_dispatcher.update((
-    # Add dispatching for other types.
-    (ast.Array, _validate_array),
-    (ast.Function, _validate_function),
-    (ast.Ref, _validate_ref),
-    (ast.User, _validate_user)
-))
-
-
-def validate(t):
-    """
-    Verify that a type is a valid type, i.e. ensures type structure
-    and semantics follow language spec.
-    """
-    return _dispatcher[type(t)](t)
-
-# == USER-TYPE STORAGE/PROCESSING ==
-
-
 class RedefBuiltinTypeError(InvalidTypeError):
     """Exception thrown on detecting redefinition of builtin type."""
     pass
@@ -136,6 +69,14 @@ class UndefTypeError(InvalidTypeError):
     pass
 
 
+# == TYPE VALIDATION & USER-TYPE STORAGE/PROCESSING ==
+
+
+def is_array(t):
+    """Check if a type is an array type."""
+    return isinstance(t, ast.Array)
+
+
 class Table:
     """
     Database of all the program's types. Enables semantic checking
@@ -156,6 +97,60 @@ class Table:
         # Value: Type which the constructor produces.
         # This is a smartdict, so keys can be retrieved.
         self.knownConstructors = smartdict.Smartdict()
+
+        # Bulk-add dispatching for builtin types.
+        self._dispatcher = {
+            typecon: self._validate_builtin
+            for typecon in ast.builtin_types_map.values()
+        }
+
+        # Add dispatching for other types.
+        self._dispatcher.update((
+            (ast.Array, self._validate_array),
+            (ast.Function, self._validate_function),
+            (ast.Ref, self._validate_ref),
+            (ast.User, self._validate_user)
+        ))
+
+    def _validate_array(self, t):
+        """An 'array of T' type is valid iff T is a valid, non-array type."""
+        basetype = t.type
+        if is_array(basetype):
+            raise ArrayOfArrayError(t)
+        self.validate(basetype)
+
+    def _validate_builtin(self, _):
+        """A builtin type is always valid."""
+        pass
+
+    def _validate_function(self, t):
+        """
+        A 'T1 -> T2' type is valid iff T1 is a valid type and T2 is a
+        valid, non-array type.
+        """
+        t1, t2 = t.fromType, t.toType
+        if is_array(t2):
+            raise ArrayReturnError(t)
+        self.validate(t1)
+        self.validate(t2)
+
+    def _validate_ref(self, t):
+        """A 'ref T' type is valid iff T is a valid, non-array type."""
+        basetype = t.type
+        if is_array(basetype):
+            raise RefOfArrayError(t)
+        self.validate(basetype)
+
+    def _validate_user(self, t):
+        """A user-defined type is always valid."""
+        pass
+
+    def validate(self, t):
+        """
+        Verify that a type is a valid type, i.e. ensures type structure
+        and semantics follow language spec.
+        """
+        return self._dispatcher[type(t)](t)
 
     def _insert_new_type(self, newType):
         """
