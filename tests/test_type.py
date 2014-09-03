@@ -47,6 +47,34 @@ class TestTypeAPI(unittest.TestCase):
         type.Table()
 
 
+class TestAux(unittest.TestCase):
+    """Test auxiliary functions."""
+
+    def test_is_array(self):
+        for typecon in ast.builtin_types_map.values():
+            self.assertFalse(type.is_array(typecon()))
+
+        right_testcases = (
+            "array of int",
+            "array of foo",
+            "array [*, *] of int"
+        )
+
+        for case in right_testcases:
+            tree = parse.quiet_parse(case, "type")
+            self.assertTrue(type.is_array(tree))
+
+        wrong_testcases = (
+            "foo",
+            "int ref",
+            "int -> int",
+        )
+
+        for case in wrong_testcases:
+            tree = parse.quiet_parse(case, "type")
+            self.assertFalse(type.is_array(tree))
+
+
 class TestBase(unittest.TestCase):
     def _assert_node_lineinfo(self, node):
         node.should.have.property("lineno")
@@ -140,30 +168,6 @@ class TestTable(TestBase):
 
 class TestValidating(TestBase):
     """Test the validating of types."""
-
-    def test_is_array(self):
-        for typecon in ast.builtin_types_map.values():
-            self.assertFalse(type.is_array(typecon()))
-
-        right_testcases = (
-            "array of int",
-            "array of foo",
-            "array [*, *] of int"
-        )
-
-        for case in right_testcases:
-            tree = parse.quiet_parse(case, "type")
-            self.assertTrue(type.is_array(tree))
-
-        wrong_testcases = (
-            "foo",
-            "int ref",
-            "int -> int",
-        )
-
-        for case in wrong_testcases:
-            tree = parse.quiet_parse(case, "type")
-            self.assertFalse(type.is_array(tree))
 
     def test_validate(self):
         proc = type.validate
