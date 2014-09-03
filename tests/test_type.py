@@ -23,10 +23,6 @@ class TestTypeAPI(unittest.TestCase):
         exc = type.RefOfArrayError
         self.assertTrue(issubclass(exc, type.InvalidTypeError))
 
-    @staticmethod
-    def test_validate():
-        type.validate(ast.Int())
-
     def test_redef_builtin_type_error(self):
         exc = type.RedefBuiltinTypeError
         self.assertTrue(issubclass(exc, type.InvalidTypeError))
@@ -45,6 +41,7 @@ class TestTypeAPI(unittest.TestCase):
 
     def test_table_init(self):
         type.Table()
+        # TODO: Verify Table has 2 public methods: process and validate
 
 
 class TestAux(unittest.TestCase):
@@ -165,12 +162,10 @@ class TestTable(TestBase):
                     exc.prev.shouldnt.be(exc.node)
                     self._assert_node_lineinfo(exc.prev)
 
-
-class TestValidating(TestBase):
-    """Test the validating of types."""
-
     def test_validate(self):
-        proc = type.validate
+        """Test the validating of types."""
+        table = type.Table()
+        proc = table.validate
         error = type.InvalidTypeError
 
         for typecon in ast.builtin_types_map.values():
