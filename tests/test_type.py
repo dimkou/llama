@@ -41,7 +41,13 @@ class TestTypeAPI(unittest.TestCase):
 
     def test_table_init(self):
         type.Table()
-        # TODO: Verify Table has 2 public methods: process and validate
+
+    def test_table_process(self):
+        tree = parse.quiet_parse("type foo = Foo of int", "typedef")
+        type.Table().process(tree)
+
+    def test_table_validate(self):
+        type.Table().validate(ast.Int())
 
 
 class TestAux(unittest.TestCase):
@@ -72,18 +78,16 @@ class TestAux(unittest.TestCase):
             self.assertFalse(type.is_array(tree))
 
 
-class TestBase(unittest.TestCase):
+class TestTable(unittest.TestCase):
+    """Test the Table's functionality."""
+
     def _assert_node_lineinfo(self, node):
         node.should.have.property("lineno")
         node.lineno.shouldnt.be(None)
         node.should.have.property("lexpos")
         node.lexpos.shouldnt.be(None)
 
-
-class TestTable(TestBase):
-    """Test the Table's processing of type definitions."""
-
-    def test_type_process_correct(self):
+    def test_process(self):
         right_testcases = (
             "type color = Red | Green | Blue",
             "type list = Nil | Cons of int list",
@@ -103,7 +107,6 @@ class TestTable(TestBase):
             tree = parse.quiet_parse(case, "typedef")
             proc.when.called_with(tree).shouldnt.throw(type.InvalidTypeError)
 
-    def test_type_process_wrong(self):
         wrong_testcases = (
             (
                 (
