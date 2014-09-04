@@ -146,6 +146,13 @@ class TestTable(unittest.TestCase):
                 ),
                 type.UndefTypeError,
                 1
+            ),
+            (
+                (
+                    "type invalid = Foo of (array of int) ref",
+                ),
+                type.RefOfArrayError,
+                1
             )
         )
 
