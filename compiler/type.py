@@ -142,8 +142,9 @@ class Table:
         self.validate(basetype)
 
     def _validate_user(self, t):
-        """A user-defined type is always valid."""
-        pass
+        """A user-defined type is valid, unless referencing an unknown type."""
+        if t not in self.knownTypes:
+            raise UndefTypeError(t)
 
     def validate(self, t):
         """
