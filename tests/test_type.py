@@ -168,6 +168,10 @@ class TestTable(unittest.TestCase):
     def test_validate(self):
         """Test the validating of types."""
         table = type.Table()
+        foo_tree = parse.quiet_parse("type foo = Foo")
+        for typeDefList in foo_tree:
+            table.process(typeDefList)
+
         proc = table.validate
         error = type.InvalidTypeError
 
@@ -227,6 +231,12 @@ class TestTable(unittest.TestCase):
                 ),
                 type.ArrayReturnError
             ),
+            (
+                (
+                    "undeftype",
+                ),
+                type.UndefTypeError
+            )
         )
 
         for cases, error in wrong_testcases:
