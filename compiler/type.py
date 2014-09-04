@@ -168,15 +168,17 @@ class Table:
             raise RedefUserTypeError(newType, existingType)
 
     def _insert_new_constructor(self, newType, constructor):
-        """Insert new constructor in Table. Signal error on reuse."""
+        """
+        Insert new constructor in Table. Signal error if constructor is reused
+        or arguments are invalid types.
+        """
         existingConstructor = self.knownConstructors.getKey(constructor)
         if existingConstructor is None:
             self.knownTypes[newType].append(constructor)
             self.knownConstructors[constructor] = newType
 
             for argType in constructor:
-                if argType not in self.knownTypes:
-                    raise UndefTypeError(argType)
+                self.validate(argType)
         else:
             raise RedefConstructorError(constructor, existingConstructor)
 
@@ -190,7 +192,7 @@ class Table:
         for tdef in typeDefList:
             self._insert_new_type(tdef.type)
 
-        # Then, process each constructor.
+        # Then, process each constructor and its arguments.
         for tdef in typeDefList:
             newType = tdef.type
             for constructor in tdef:
