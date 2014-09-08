@@ -16,16 +16,14 @@ from compiler import ast, smartdict
 # == INVALID TYPE ERRORS ==
 
 
-class InvalidTypeError(Exception):
+class InvalidTypeError(ast.NodeError):
     """
     Exception thrown on detecting an invalid type or
     a bad type declaration.
-    Carries the offending ast node.
-    This class is only meant as an interface.
-    Only specific sublcasses should be instantiated.
+    This class is only meant as an ABC.
+    Only specific subclasses should be instantiated.
     """
-    def __init__(self, node):
-        self.node = node
+    _node_error_msg = "Invalid type"
 
 
 class ArrayOfArrayError(InvalidTypeError):
@@ -50,18 +48,12 @@ class RedefBuiltinTypeError(InvalidTypeError):
 
 class RedefConstructorError(InvalidTypeError):
     """Exception thrown on detecting redefinition of constructor."""
-
-    def __init__(self, node, prev):
-        self.node = node
-        self.prev = prev
+    pass
 
 
 class RedefUserTypeError(InvalidTypeError):
     """Exception thrown on detecting redefinition of user type."""
-
-    def __init__(self, node, prev):
-        self.node = node
-        self.prev = prev
+    pass
 
 
 class UndefTypeError(InvalidTypeError):
