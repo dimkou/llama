@@ -28,38 +28,49 @@ class InvalidTypeError(ast.NodeError):
 
 class ArrayOfArrayError(InvalidTypeError):
     """Exception thrown on detecting an array of arrays."""
-    pass
+    _node_error_msg = "Invalid type: array of array"
 
 
 class ArrayReturnError(InvalidTypeError):
     """Exception thrown on detecting a function returning an array."""
-    pass
+    _node_error_msg = "Invalid type: function returning array"
 
 
 class RefOfArrayError(InvalidTypeError):
     """Exception thrown on detecting a ref to an array."""
-    pass
+    _node_error_msg = "Invalid type: ref of array"
 
 
 class RedefBuiltinTypeError(InvalidTypeError):
     """Exception thrown on detecting redefinition of builtin type."""
-    pass
+    @property
+    def _node_error_msg(self):
+        return "Redefining builtin type %s" % self.node.name
 
 
 class RedefConstructorError(InvalidTypeError):
     """Exception thrown on detecting redefinition of constructor."""
-    pass
+    @property
+    def _node_error_msg(self):
+        return "Redefining constructor %s" % self.node.name
+
+    _prev_error_msg = ": previous definition"
 
 
 class RedefUserTypeError(InvalidTypeError):
     """Exception thrown on detecting redefinition of user type."""
-    pass
+    @property
+    def _node_error_msg(self):
+        return "Redefining user type %s" % self.node.name
+
+    _prev_error_msg = ": previous definition"
 
 
 class UndefTypeError(InvalidTypeError):
     """Exception thrown on detecting reference to undefined type."""
-    pass
-
+    @property
+    def _node_error_msg(self):
+        return "Undefined type: %s" % self.node.name
 
 # == TYPE VALIDATION & USER-TYPE STORAGE/PROCESSING ==
 
