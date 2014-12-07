@@ -26,3 +26,7 @@ class TempType:
 
         self.tag = TempType._next_free
         TempType._next_free += 1
+
+    def write_back(self):
+        self.node.type = self.inferred_type
+        # TODO: Validate the type before returning.
