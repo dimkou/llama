@@ -8,7 +8,8 @@
 # Author: Nick Korasidis <renelvon@gmail.com>
 # ----------------------------------------------------------------------
 """
-#TODO Store Constraints
+
+# TODO Store Constraints
 from compiler import ast, error, infer, symbol
 from compiler import type as typeM
 
@@ -107,22 +108,19 @@ class Analyzer:
         elif isinstance(t, ast.WhileExpression):
             self.analyze_while_expression(expression)
 
-    @staticmethod
     def make_expression_temp_type(expression):
-        return infer.TempType(expression, spec_type=expression.type)
+            return infer.TempType(expression, spec_type=expression.type)
 
     def analyze_unary_expression(self, expression):
         operator = expression.operator
         if operator == '!':
-            value_temp_type = make_expression_temp_type(expression) 
-            op_temp_type = make_expression_temp_type(expression.operand) 
-            temp_ref = ast.Ref(value_temp_type) 
+            value_temp_type = self.make_expression_temp_type(expression)
+            temp_ref = ast.Ref(value_temp_type)
             infer.SpecConstraint(expression, value_temp_type)
             infer.SpecConstraint(expression.operand, temp_ref)
             infer.NegSetConstraint(expression.operand)
-        elif operator in ('+','-'):
-            value_temp_type = make_expression_temp_type(expression)
-            op_temp_type = make_expression_temp_type(expression.operand)
+        elif operator in ('+', '-'):
+            value_temp_type = self.make_expression_temp_type(expression)
             infer.SpecConstraint(value_temp_type, ast.Int())
             infer.AsOfTypeConstraint(expression, expression.operand)
 

@@ -10,6 +10,7 @@
 # ----------------------------------------------------------------------
 """
 
+
 class TempType:
     """A temporary type used during inference"""
 
@@ -22,7 +23,7 @@ class TempType:
         The user may optionally define the type of this node.
         """
         self.node = node
-        self.inferred_type = user_type
+        self.inferred_type = spec_type
 
         self.tag = TempType._next_free
         TempType._next_free += 1
