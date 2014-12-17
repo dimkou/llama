@@ -120,7 +120,7 @@ class Analyzer:
         return self._dispatch(expression)
 
     def make_expression_temp_type(expression):
-            return infer.TempType(expression, spec_type=expression.type)
+        return infer.TempType(expression, spec_type=expression.type)
 
     def analyze_unary_expression(self, expression):
         operator = expression.operator
