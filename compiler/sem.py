@@ -91,6 +91,12 @@ class Analyzer:
             scope.visible = True
             self._insert_symbols(letdef)
 
+    def analyze_typedef(self, typedef):
+        try:
+            self.type_table.process(typedef)
+        except typeM.InvalidTypeError as e:
+            self.logger.error(str(e))
+
     def analyze_definition(self, definition):
         return self._dispatch(definition)
 
@@ -100,6 +106,15 @@ class Analyzer:
         self._insert_symbols(definition.params)
         self.analyze_expression(definition.body)
         self.symbol_table.close_scope()
+
+    def analyze_variable_def(self, definition):
+        pass
+
+    def analyze_array_variable_def(self, definition):
+        pass
+
+    def analyze_param(self, param):
+        pass
 
     def analyze_expression(self, expression):
         return self._dispatch(expression)
@@ -120,17 +135,65 @@ class Analyzer:
             infer.SpecConstraint(value_temp_type, ast.Int())
             infer.AsOfTypeConstraint(expression, expression.operand)
 
-    def analyze_variable_def(self, variable_def):
+    def analyze_bang_expression(self, expression):
         pass
 
-    def analyze_array_variable_def(self, array_variable_def):
+    def analyze_sign_expression(self, expression):
         pass
 
-    def analyze_typedef(self, typedef):
-        try:
-            self.type_table.process(typedef)
-        except typeM.InvalidTypeError as e:
-            self.logger.error(str(e))
+    def analyze_binary_expression(self, expression):
+        pass
+
+    def analyze_constructor_call_expression(self, expression):
+        pass
+
+    def analyze_array_expression(self, expression):
+        pass
+
+    def analyze_const_expression(self, expression):
+        pass
+
+    def analyze_conid_expression(self, expression):
+        pass
+
+    def analyze_genid_expression(self, expression):
+        pass
+
+    def analyze_delete_expression(self, expression):
+        pass
+
+    def analyze_dim_expression(self, expression):
+        pass
+
+    def analyze_for_expression(self, expression):
+        pass
+
+    def analyze_function_call_expression(self, expression):
+        pass
+
+    def analyze_let_in_expression(self, expression):
+        pass
+
+    def analyze_if_expression(self, expression):
+        pass
+
+    def analyze_match_expression(self, expression):
+        pass
+
+    def analyze_new_expression(self, expression):
+        pass
+
+    def analyze_while_expression(self, expression):
+        pass
+
+    def analyze_clause(self, clause):
+        pass
+
+    def analyze_pattern(self, pattern):
+        pass
+
+    def analyze_genid_pattern(self, pattern):
+        pass
 
 
 def analyze(program, logger=None):
