@@ -73,11 +73,7 @@ class Analyzer:
 
     def analyze(self, program):
         for definition in program:
-            t = type(definition)
-            if isinstance(t, ast.LetDef):
-                self.analyze_letdef(definition)
-            elif t == list:  # a typedef
-                self.analyze_typedef(definition)
+            self._dispatch(definition)
         return program
 
     def analyze_letdef(self, letdef):
@@ -96,55 +92,17 @@ class Analyzer:
             self._insert_symbols(letdef)
 
     def analyze_definition(self, definition):
-        t = type(definition)
-        if t == ast.FunctionDef:
-            self.analyze_function_def(definition)
-        elif t == ast.VariableDef:
-            self.analyze_variable_def(definition)
-        elif t == ast.ArrayVariableDef:
-            self.analyze_array_variable_def(definition)
+        return self._dispatch(definition)
 
-    def analyze_function_def(self, function_def):
+    def analyze_function_def(self, definition):
         scope = self.symbol_table.open_scope()
         assert scope.visible, 'New scope is invisible'
-        self._insert_symbols(function_def.params)
-        self.analyze_expression(function_def.body)
+        self._insert_symbols(definition.params)
+        self.analyze_expression(definition.body)
         self.symbol_table.close_scope()
 
     def analyze_expression(self, expression):
-        t = type(expression)
-        if isinstance(t, ast.BinaryExpression):
-            self.analyze_binary_expression(expression)
-        elif isinstance(t, ast.UnaryExpression):
-            self.analyze_unary_expression(expression)
-        elif isinstance(t, ast.ConstructorCall):
-            self.analyze_constructor_call(expression)
-        elif isinstance(t, ast.ArrayExpression):
-            self.analyze_array_expression(expression)
-        elif isinstance(t, ast.ConstExpression):
-            self.analyze_const_expression(expression)
-        elif isinstance(t, ast.ConidExpression):
-            self.analyze_conid_expression(expression)
-        elif isinstance(t, ast.GenidExpression):
-            self.analyze_genid_expression(expression)
-        elif isinstance(t, ast.DeleteExpression):
-            self.analyze_delete_expression(expression)
-        elif isinstance(t, ast.DimExpression):
-            self.analyze_dim_expression(expression)
-        elif isinstance(t, ast.ForExpression):
-            self.analyze_for_expression(expression)
-        elif isinstance(t, ast.FunctionCallExpression):
-            self.analyze_function_call_expression(expression)
-        elif isinstance(t, ast.LetInExpression):
-            self.analyze_let_in_expression(expression)
-        elif isinstance(t, ast.IfExpression):
-            self.analyze_if_expression(expression)
-        elif isinstance(t, ast.MatchExpression):
-            self.analyze_match_expression(expression)
-        elif isinstance(t, ast.NewExpression):
-            self.analyze_new_expression(expression)
-        elif isinstance(t, ast.WhileExpression):
-            self.analyze_while_expression(expression)
+        return self._dispatch(expression)
 
     def make_expression_temp_type(expression):
             return infer.TempType(expression, spec_type=expression.type)
