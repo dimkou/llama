@@ -26,6 +26,44 @@ class Analyzer:
         else:
             self.logger = logger
 
+        self._dispatcher = {
+            ast.Program: self.analyze,
+            ast.LetDef: self.analyze_letdef,
+            ast.FunctionDef: self.analyze_function_def,
+            ast.VariableDef: self.analyze_variable_def,
+            ast.ArrayVariableDef: self.analyze_array_variable_def,
+            ast.Param: self.analyze_param,
+            ast.BinaryExpression: self.analyze_binary_expression,
+            ast.UnaryExpression: self.analyze_unary_expression,
+            ast.ConstructorCallExpression:
+                self.analyze_constructor_call_expression,
+            ast.ArrayExpression: self.analyze_array_expression,
+            ast.ConstExpression: self.analyze_const_expression,
+            ast.ConidExpression: self.analyze_conid_expression,
+            ast.GenidExpression: self.analyze_genid_expression,
+            ast.DeleteExpression: self.analyze_delete_expression,
+            ast.DimExpression: self.analyze_dim_expression,
+            ast.ForExpression: self.analyze_for_expression,
+            ast.FunctionCallExpression:
+                self.analyze_function_call_expression,
+            ast.LetInExpression: self.analyze_let_in_expression,
+            ast.IfExpression: self.analyze_if_expression,
+            ast.MatchExpression: self.analyze_match_expression,
+            ast.NewExpression: self.analyze_new_expression,
+            ast.WhileExpression: self.analyze_while_expression,
+            ast.Clause: self.analyze_clause,
+            ast.Pattern: self.analyze_pattern,
+            ast.GenidPattern: self.analyze_genid_pattern,
+
+            list: self.analyze_typedef,  # TODO: Redo ast.TypeDef?
+            # NOTE: Some ast nodes are omitted, as they are
+            # processed elsewhere. These include type annotations as
+            # well as type declarations.
+        }
+
+    def _dispatch(self, node):
+        return self._dispatcher[type(node)](node)
+
     def _insert_symbols(self, symbols):
         for s in symbols:
             try:
