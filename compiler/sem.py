@@ -119,7 +119,7 @@ class Analyzer:
     def analyze_expression(self, expression):
         return self._dispatch(expression)
 
-    def make_expression_temp_type(expression):
+    def make_expression_temp_type(self, expression):
         return infer.TempType(expression, spec_type=expression.type)
 
     def analyze_unary_expression(self, expression):
@@ -133,7 +133,7 @@ class Analyzer:
         elif operator in ('+', '-'):
             value_temp_type = self.make_expression_temp_type(expression)
             infer.SpecConstraint(value_temp_type, ast.Int())
-            infer.AsOfTypeConstraint(expression, expression.operand)
+            infer.AsTypeOfConstraint(expression, expression.operand)
 
     def analyze_bang_expression(self, expression):
         pass
