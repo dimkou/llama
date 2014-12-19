@@ -32,7 +32,6 @@ class Analyzer:
             ast.FunctionDef: self.analyze_function_def,
             ast.VariableDef: self.analyze_variable_def,
             ast.ArrayVariableDef: self.analyze_array_variable_def,
-            ast.Param: self.analyze_param,
             ast.BinaryExpression: self.analyze_binary_expression,
             ast.UnaryExpression: self.analyze_unary_expression,
             ast.ConstructorCallExpression:
@@ -113,8 +112,6 @@ class Analyzer:
     def analyze_array_variable_def(self, definition):
         pass
 
-    def analyze_param(self, param):
-        pass
 
     def analyze_expression(self, expression):
         return self._dispatch(expression)
