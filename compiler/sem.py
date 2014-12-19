@@ -109,8 +109,16 @@ class Analyzer:
         return self._dispatch(definition)
 
     def analyze_function_def(self, definition):
+        for param in definition.params:
+            if param.name == definition.name:
+                self.logger.warning(
+                    "%d:%d: warning: Parameter has same name as function",
+                    param.lineno, param.lexpos
+                )
+
         scope = self.symbol_table.open_scope()
         assert scope.visible, 'New scope is invisible'
+        # if we define a constant then params is an empty list
         self._insert_symbols(definition.params)
         self.analyze_expression(definition.body)
         self.symbol_table.close_scope()
