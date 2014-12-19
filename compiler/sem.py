@@ -145,20 +145,26 @@ class Analyzer:
     def analyze_unary_expression(self, expression):
         operator = expression.operator
         if operator == '!':
-            value_temp_type = self.make_expression_temp_type(expression)
-            temp_ref = ast.Ref(value_temp_type)
-            infer.SpecConstraint(expression, value_temp_type)
-            infer.SpecConstraint(expression.operand, temp_ref)
-            infer.NegSetConstraint(expression.operand)
-        elif operator in ('+', '-'):
-            value_temp_type = self.make_expression_temp_type(expression)
-            infer.SpecConstraint(value_temp_type, ast.Int())
-            infer.AsTypeOfConstraint(expression, expression.operand)
+            self.analyze_bang_expression(expression)
+        elif operator in ('+', '-', '+.', '-.'):
+            self.analyze_sign_expression(expression)
+        else:
+            #if it isn't one of the previous operators it is the operator "not"
+            self.analyze_not_expression(expression)
 
     def analyze_bang_expression(self, expression):
-        pass
+        value_temp_type = self.make_expression_temp_type(expression)
+        temp_ref = ast.Ref(value_temp_type)
+        infer.SpecConstraint(expression, value_temp_type)
+        infer.SpecConstraint(expression.operand, temp_ref)
+        infer.NegSetConstraint(expression.operand)
 
     def analyze_sign_expression(self, expression):
+        value_temp_type = self.make_expression_temp_type(expression)
+        infer.SpecConstraint(value_temp_type, ast.Int())
+        infer.AsTypeOfConstraint(expression, expression.operand)
+
+    def analyze_not_expression(self, expression):
         pass
 
     def analyze_binary_expression(self, expression):
