@@ -31,7 +31,7 @@ class Analyzer:
             ast.LetDef: self.analyze_letdef,
             ast.FunctionDef: self.analyze_function_def,
             ast.VariableDef: self.analyze_variable_def,
-            ast.ArrayVariableDef: self.analyze_array_variable_def,
+            ast.ArrayVariableDef: self.analyze_variable_def,
             ast.BinaryExpression: self.analyze_binary_expression,
             ast.UnaryExpression: self.analyze_unary_expression,
             ast.ConstructorCallExpression:
@@ -55,6 +55,7 @@ class Analyzer:
             ast.GenidPattern: self.analyze_genid_pattern,
 
             list: self.analyze_typedef,  # TODO: Redo ast.TypeDef?
+
             # NOTE: Some ast nodes are omitted, as they are
             # processed elsewhere. These include type annotations as
             # well as type declarations.
@@ -123,12 +124,17 @@ class Analyzer:
         self.analyze_expression(definition.body)
         self.symbol_table.close_scope()
 
+    def _validate_type_of_node(self, node):
+        try:
+            self.type_table.validate(node.type)
+        except typeM.InvalidTypeError as e:
+            self.logger.error(str(e))
+
     def analyze_variable_def(self, definition):
-        pass
-
-    def analyze_array_variable_def(self, definition):
-        pass
-
+        if definition.type:
+            self._validate_type_of_node(definition)
+        else:
+            self.add_callback(self._validate_type_of_node, node)
 
     def analyze_expression(self, expression):
         return self._dispatch(expression)
