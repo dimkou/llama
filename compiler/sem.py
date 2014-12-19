@@ -60,6 +60,15 @@ class Analyzer:
             # well as type declarations.
         }
 
+        self._callbacks = []
+
+    def _add_callback(self, function, *args, **kwargs):
+        self._callbacks.append((function, args, kwargs))
+
+    def _invoke_callbacks(self):
+        for fun, args, kwargs in self._callbacks:
+            fun(*args, **kwargs)
+
     def _dispatch(self, node):
         return self._dispatcher[type(node)](node)
 
