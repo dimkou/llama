@@ -11,6 +11,8 @@
 # ----------------------------------------------------------------------
 """
 
+from collections import abc
+
 # == INTERFACES OF AST NODES ==
 
 
