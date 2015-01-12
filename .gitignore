@@ -8,3 +8,4 @@ __pycache__
 py3env
 *.pyo
 *.pyc
+env/
