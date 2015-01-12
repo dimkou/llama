@@ -23,10 +23,6 @@ class TestTypeAPI(unittest.TestCase):
         exc = type.RefOfArrayError
         self.assertTrue(issubclass(exc, type.InvalidTypeError))
 
-    @staticmethod
-    def test_validate():
-        type.validate(ast.Int())
-
     def test_redef_builtin_type_error(self):
         exc = type.RedefBuiltinTypeError
         self.assertTrue(issubclass(exc, type.InvalidTypeError))
@@ -46,19 +42,52 @@ class TestTypeAPI(unittest.TestCase):
     def test_table_init(self):
         type.Table()
 
+    def test_table_process(self):
+        tree = parse.quiet_parse("type foo = Foo of int", "typedef")
+        type.Table().process(tree)
 
-class TestBase(unittest.TestCase):
+    def test_table_validate(self):
+        type.Table().validate(ast.Int())
+
+
+class TestAux(unittest.TestCase):
+    """Test auxiliary functions."""
+
+    def test_is_array(self):
+        for typecon in ast.builtin_types_map.values():
+            self.assertFalse(type.is_array(typecon()))
+
+        right_testcases = (
+            "array of int",
+            "array of foo",
+            "array [*, *] of int"
+        )
+
+        for case in right_testcases:
+            tree = parse.quiet_parse(case, "type")
+            self.assertTrue(type.is_array(tree))
+
+        wrong_testcases = (
+            "foo",
+            "int ref",
+            "int -> int",
+        )
+
+        for case in wrong_testcases:
+            tree = parse.quiet_parse(case, "type")
+            self.assertFalse(type.is_array(tree))
+
+
+class TestTable(unittest.TestCase):
+    """Test the Table's functionality."""
+
     def _assert_node_lineinfo(self, node):
         node.should.have.property("lineno")
         node.lineno.shouldnt.be(None)
         node.should.have.property("lexpos")
         node.lexpos.shouldnt.be(None)
 
-
-class TestTable(TestBase):
-    """Test the Table's processing of type definitions."""
-
-    def test_type_process_correct(self):
+    def test_process(self):
         right_testcases = (
             "type color = Red | Green | Blue",
             "type list = Nil | Cons of int list",
@@ -78,7 +107,6 @@ class TestTable(TestBase):
             tree = parse.quiet_parse(case, "typedef")
             proc.when.called_with(tree).shouldnt.throw(type.InvalidTypeError)
 
-    def test_type_process_wrong(self):
         wrong_testcases = (
             (
                 (
@@ -118,6 +146,13 @@ class TestTable(TestBase):
                 ),
                 type.UndefTypeError,
                 1
+            ),
+            (
+                (
+                    "type invalid = Foo of (array of int) ref",
+                ),
+                type.RefOfArrayError,
+                1
             )
         )
 
@@ -137,36 +172,14 @@ class TestTable(TestBase):
                     exc.prev.shouldnt.be(exc.node)
                     self._assert_node_lineinfo(exc.prev)
 
-
-class TestValidating(TestBase):
-    """Test the validating of types."""
-
-    def test_is_array(self):
-        for typecon in ast.builtin_types_map.values():
-            self.assertFalse(type.is_array(typecon()))
-
-        right_testcases = (
-            "array of int",
-            "array of foo",
-            "array [*, *] of int"
-        )
-
-        for case in right_testcases:
-            tree = parse.quiet_parse(case, "type")
-            self.assertTrue(type.is_array(tree))
-
-        wrong_testcases = (
-            "foo",
-            "int ref",
-            "int -> int",
-        )
-
-        for case in wrong_testcases:
-            tree = parse.quiet_parse(case, "type")
-            self.assertFalse(type.is_array(tree))
-
     def test_validate(self):
-        proc = type.validate
+        """Test the validating of types."""
+        table = type.Table()
+        foo_tree = parse.quiet_parse("type foo = Foo")
+        for typeDefList in foo_tree:
+            table.process(typeDefList)
+
+        proc = table.validate
         error = type.InvalidTypeError
 
         for typecon in ast.builtin_types_map.values():
@@ -225,6 +238,12 @@ class TestValidating(TestBase):
                 ),
                 type.ArrayReturnError
             ),
+            (
+                (
+                    "undeftype",
+                ),
+                type.UndefTypeError
+            )
         )
 
         for cases, error in wrong_testcases:
