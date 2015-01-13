@@ -11,6 +11,8 @@
 # ----------------------------------------------------------------------
 """
 
+from collections import abc
+
 # == INTERFACES OF AST NODES ==
 
 
@@ -72,7 +74,7 @@ class Def(Node):
     pass
 
 
-class NameNode(Node):
+class NameNode(abc.Hashable, Node):
     """
     A node with a user-defined name that possibly requires
     scope-aware disambiguation or checking.
@@ -85,7 +87,7 @@ class NameNode(Node):
         return hash(self.name)
 
 
-class ListNode(Node):
+class ListNode(abc.Iterable, Node):
     """
     A node carrying a list of ast nodes.
     Supports iterating through the nodes list.

@@ -73,7 +73,7 @@ class TestLexerAPI(unittest.TestCase):
     def test_iterator():
         lexer = lex.Lexer()
         lexer.input("foo")
-        iter(lexer)
+        lexer.should.be(iter(lexer))
         next(lexer)
 
     @staticmethod

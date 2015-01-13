@@ -13,6 +13,7 @@
 # ----------------------------------------------------------------------
 """
 
+from collections import abc
 import re
 
 from ply import lex
@@ -494,7 +495,7 @@ class _LexerFactory:
         self.lexer.begin('INITIAL')
 
 
-class Lexer:
+class Lexer(abc.Iterator):
     """ A Llama lexer"""
 
     # The actual lexer as returned by _LexerFactory
@@ -533,9 +534,6 @@ class Lexer:
 
     # == ITERATOR INTERFACE ==
 
-    def __iter__(self):
-        return self
-
     def __next__(self):
         tok = self.token()
         if tok is None:
@@ -563,10 +561,10 @@ class Lexer:
 
     def tokenize(self, data):
         """
-        Lex the given string. Return an iterator over the string tokens.
+        Lex the given string and return an iterator over the string tokens.
         """
         self.input(data)
-        return iter(self)
+        return self
 
     # == EXPORT POSITION ATTRIBUTES ==
 
