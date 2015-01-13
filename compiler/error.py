@@ -8,26 +8,20 @@
 # ----------------------------------------------------------------------
 """
 
-import abc
 import logging
 
 
-class LoggerInterface(metaclass=abc.ABCMeta):
+class LoggerInterface:
     """
     Interface and minimal implementation of a logger.
     Mainly used for testing purposes.
     """
 
-    errors = 0
-    warnings = 0
-
-    @abc.abstractmethod
     def __init__(self):
-        pass
+        self.clear()
 
     def clear(self):
         """Reset logger state for testability"""
-
         self.errors = 0
         self.warnings = 0
 
@@ -59,10 +53,7 @@ class LoggerInterface(metaclass=abc.ABCMeta):
 
 class LoggerMock(LoggerInterface):
     """Mock of a full logger. Mainly used for testing purposes."""
-
-    def __init__(self):
-        """Make a new mock loggger."""
-        pass
+    pass
 
 
 class Logger(LoggerInterface):
@@ -80,6 +71,8 @@ class Logger(LoggerInterface):
 
     def __init__(self, inputfile="<stdin>", level=logging.WARNING):
         """Create a new logger for the llama compiler."""
+        super().__init__()
+
         self._logger = logging.getLogger('llama%d' % Logger._instances)
         Logger._instances += 1
         self._logger.setLevel(level)
