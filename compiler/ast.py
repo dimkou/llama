@@ -345,3 +345,43 @@ class Function(Type):
     def __init__(self, fromType, toType):
         self.fromType = fromType
         self.toType = toType
+
+
+# == BASE ERROR CLASS ==
+
+class NodeError(Exception):
+    """
+    Exception thrown on detecting a (semantic) error on an AST node.
+
+    This class is only meant as an ABC. Only specific subclasses
+    should be instantiated.
+    """
+
+    _node_error_msg = "Bad node"
+    _prev_error_msg = ""
+    _err_level = "error: "
+    _prev_prefix = "\n-> "
+
+    def __init__(self, node, prev=None):
+        """Create a new exception carrying the offending node(s)."""
+        self.node = node
+        self.prev = prev
+
+    def __str__(self):
+        """Format and return the exception's message."""
+        node_msg = "".join(
+            self.node.pos_to_str(),
+            self._err_level,
+            self._node_error_msg
+        )
+
+        if self.prev is not None:
+            prev_msg = "".join(
+                self._prev_prefix,
+                self.prev.pos_to_str(),
+                self._prev_error_msg
+            )
+        else:
+            prev_msg = ""
+
+        return "%s%s" % (node_msg, prev_msg)
