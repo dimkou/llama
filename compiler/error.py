@@ -8,6 +8,7 @@
 # ----------------------------------------------------------------------
 """
 
+import abc
 import logging
 
 
@@ -18,7 +19,7 @@ def _format(f):
     return new_f
 
 
-class LoggerInterface:
+class LoggerInterface(metaclass=abc.ABCMeta):
     """
     Interface and minimal implementation of a logger.
     Mainly used for testing purposes.
@@ -27,8 +28,9 @@ class LoggerInterface:
     errors = 0
     warnings = 0
 
+    @abc.abstractmethod
     def __init__(self):
-        raise NotImplementedError
+        pass
 
     def clear(self):
         """Reset logger state for testability"""
