@@ -41,6 +41,16 @@ class Node(metaclass=abc.ABCMeta):
         self.lineno = node.lineno
         self.lexpos = node.lexpos
 
+    def pos_to_str(self):
+        """Return node position as a string."""
+        if self.lineno is None:
+            return ""
+
+        if self.lexpos is None:
+            return "%d:" % self.lineno
+
+        return "%d:%d:" % (self.lineno, self.lexpos)
+
     def __repr__(self):
         attrs = [attr for attr in dir(self) if attr[0] != '_']
         values = [getattr(self, attr) for attr in attrs]
