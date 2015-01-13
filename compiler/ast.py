@@ -11,17 +11,19 @@
 # ----------------------------------------------------------------------
 """
 
-from collections import abc
+import abc
+import collections.abc
 
 # == INTERFACES OF AST NODES ==
 
 
-class Node:
+class Node(metaclass=abc.ABCMeta):
     lineno = None
     lexpos = None
 
+    @abc.abstractmethod
     def __init__(self):
-        raise NotImplementedError
+        pass
 
     def __eq__(self, other):
         """
@@ -74,7 +76,7 @@ class Def(Node):
     pass
 
 
-class NameNode(abc.Hashable, Node):
+class NameNode(collections.abc.Hashable, Node):
     """
     A node with a user-defined name that possibly requires
     scope-aware disambiguation or checking.
@@ -87,7 +89,7 @@ class NameNode(abc.Hashable, Node):
         return hash(self.name)
 
 
-class ListNode(abc.Iterable, Node):
+class ListNode(collections.abc.Iterable, Node):
     """
     A node carrying a list of ast nodes.
     Supports iterating through the nodes list.
