@@ -8,50 +8,33 @@
 # ----------------------------------------------------------------------
 """
 
-import abc
 import logging
 
 
-def _format(f):
-    def new_f(self, fmt, *args):
-        msg = fmt % args  # Let it throw, let it throw, let it throw
-        f(self, msg)
-    return new_f
-
-
-class LoggerInterface(metaclass=abc.ABCMeta):
+class LoggerInterface:
     """
     Interface and minimal implementation of a logger.
     Mainly used for testing purposes.
     """
 
-    errors = 0
-    warnings = 0
-
-    @abc.abstractmethod
     def __init__(self):
-        pass
+        self.clear()
 
     def clear(self):
         """Reset logger state for testability"""
-
         self.errors = 0
         self.warnings = 0
 
-    @_format
-    def debug(self, msg):
+    def debug(self, fmt, *args):
         pass
 
-    @_format
-    def info(self, msg):
+    def info(self, fmt, *args):
         pass
 
-    @_format
-    def warning(self, msg):
+    def warning(self, fmt, *args):
         self.warnings += 1
 
-    @_format
-    def error(self, msg):
+    def error(self, fmt, *args):
         self.errors += 1
 
     @property
@@ -70,10 +53,7 @@ class LoggerInterface(metaclass=abc.ABCMeta):
 
 class LoggerMock(LoggerInterface):
     """Mock of a full logger. Mainly used for testing purposes."""
-
-    def __init__(self):
-        """Make a new mock loggger."""
-        pass
+    pass
 
 
 class Logger(LoggerInterface):
@@ -91,6 +71,8 @@ class Logger(LoggerInterface):
 
     def __init__(self, inputfile="<stdin>", level=logging.WARNING):
         """Create a new logger for the llama compiler."""
+        super().__init__()
+
         self._logger = logging.getLogger('llama%d' % Logger._instances)
         Logger._instances += 1
         self._logger.setLevel(level)
@@ -99,24 +81,20 @@ class Logger(LoggerInterface):
         handler.setFormatter(formatter)
         self._logger.addHandler(handler)
 
-    @_format
-    def error(self, msg):
+    def error(self, fmt, *args):
         """Add an error to the logger."""
-        self._logger.error(msg)
+        self._logger.error(fmt, *args)
         self.errors += 1
 
-    @_format
-    def warning(self, msg):
+    def warning(self, fmt, *args):
         """Add a warning to the logger."""
-        self._logger.warning(msg)
+        self._logger.warning(fmt, *args)
         self.warnings += 1
 
-    @_format
-    def debug(self, msg):
+    def debug(self, fmt, *args):
         """Add some debug info to the logger."""
-        self._logger.debug(msg)
+        self._logger.debug(fmt, *args)
 
-    @_format
-    def info(self, msg):
+    def info(self, fmt, *args):
         """Add some general info to the logger."""
-        self._logger.info(msg)
+        self._logger.info(fmt, *args)
