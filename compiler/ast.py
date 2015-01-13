@@ -85,7 +85,7 @@ class NameNode(abc.Hashable, Node):
         return hash(self.name)
 
 
-class ListNode(Node):
+class ListNode(abc.Iterable, Node):
     """
     A node carrying a list of ast nodes.
     Supports iterating through the nodes list.
