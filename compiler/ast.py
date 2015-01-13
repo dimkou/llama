@@ -72,7 +72,7 @@ class Def(Node):
     pass
 
 
-class NameNode(Node):
+class NameNode(abc.Hashable, Node):
     """
     A node with a user-defined name that possibly requires
     scope-aware disambiguation or checking.
