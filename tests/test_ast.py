@@ -8,6 +8,14 @@ from compiler import ast, parse
 
 class TestAST(unittest.TestCase):
 
+    def test_pos_to_str(self):
+        node = ast.Int()
+        node.pos_to_str().should.equal("")
+        node.lineno = 1
+        node.pos_to_str().should.equal("1:")
+        node.lexpos = 2
+        node.pos_to_str().should.equal("1:2:")
+
     def test_eq(self):
         foocon = ast.Constructor("foo", [])
         ast.Constructor("foo", []).should.equal(foocon)
