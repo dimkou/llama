@@ -1,6 +1,6 @@
 import unittest
 
-from compiler import ast, parse, type
+from compiler import ast, parse, typesem
 
 # pylint: disable=no-member
 
@@ -9,45 +9,45 @@ class TestTypeAPI(unittest.TestCase):
     """Test the API of the type module."""
 
     def test_is_array(self):
-        self.assertTrue(type.is_array(ast.Array(ast.Int())))
+        self.assertTrue(typesem.is_array(ast.Array(ast.Int())))
 
     def test_array_of_array_error(self):
-        exc = type.ArrayOfArrayError
-        self.assertTrue(issubclass(exc, type.InvalidTypeError))
+        exc = typesem.ArrayOfArrayError
+        self.assertTrue(issubclass(exc, typesem.InvalidTypeError))
 
     def test_array_return_error(self):
-        exc = type.ArrayReturnError
-        self.assertTrue(issubclass(exc, type.InvalidTypeError))
+        exc = typesem.ArrayReturnError
+        self.assertTrue(issubclass(exc, typesem.InvalidTypeError))
 
     def test_ref_of_array_error(self):
-        exc = type.RefOfArrayError
-        self.assertTrue(issubclass(exc, type.InvalidTypeError))
+        exc = typesem.RefOfArrayError
+        self.assertTrue(issubclass(exc, typesem.InvalidTypeError))
 
     def test_redef_builtin_type_error(self):
-        exc = type.RedefBuiltinTypeError
-        self.assertTrue(issubclass(exc, type.InvalidTypeError))
+        exc = typesem.RedefBuiltinTypeError
+        self.assertTrue(issubclass(exc, typesem.InvalidTypeError))
 
     def test_redef_constructor_error(self):
-        exc = type.RedefConstructorError
-        self.assertTrue(issubclass(exc, type.InvalidTypeError))
+        exc = typesem.RedefConstructorError
+        self.assertTrue(issubclass(exc, typesem.InvalidTypeError))
 
     def test_redef_user_type_error(self):
-        exc = type.RedefUserTypeError
-        self.assertTrue(issubclass(exc, type.InvalidTypeError))
+        exc = typesem.RedefUserTypeError
+        self.assertTrue(issubclass(exc, typesem.InvalidTypeError))
 
     def test_undef_type_error(self):
-        exc = type.UndefTypeError
-        self.assertTrue(issubclass(exc, type.InvalidTypeError))
+        exc = typesem.UndefTypeError
+        self.assertTrue(issubclass(exc, typesem.InvalidTypeError))
 
     def test_table_init(self):
-        type.Table()
+        typesem.Table()
 
     def test_table_process(self):
         tree = parse.quiet_parse("type foo = Foo of int", "typedef")
-        type.Table().process(tree)
+        typesem.Table().process(tree)
 
     def test_table_validate(self):
-        type.Table().validate(ast.Int())
+        typesem.Table().validate(ast.Int())
 
 
 class TestAux(unittest.TestCase):
@@ -55,7 +55,7 @@ class TestAux(unittest.TestCase):
 
     def test_is_array(self):
         for typecon in ast.builtin_types_map.values():
-            self.assertFalse(type.is_array(typecon()))
+            self.assertFalse(typesem.is_array(typecon()))
 
         right_testcases = (
             "array of int",
@@ -65,7 +65,7 @@ class TestAux(unittest.TestCase):
 
         for case in right_testcases:
             tree = parse.quiet_parse(case, "type")
-            self.assertTrue(type.is_array(tree))
+            self.assertTrue(typesem.is_array(tree))
 
         wrong_testcases = (
             "foo",
@@ -75,7 +75,7 @@ class TestAux(unittest.TestCase):
 
         for case in wrong_testcases:
             tree = parse.quiet_parse(case, "type")
-            self.assertFalse(type.is_array(tree))
+            self.assertFalse(typesem.is_array(tree))
 
 
 class TestTable(unittest.TestCase):
@@ -101,11 +101,13 @@ class TestTable(unittest.TestCase):
             """
         )
 
-        table = type.Table()
+        table = typesem.Table()
         proc = table.process
         for case in right_testcases:
             tree = parse.quiet_parse(case, "typedef")
-            proc.when.called_with(tree).shouldnt.throw(type.InvalidTypeError)
+            proc.when.called_with(tree).shouldnt.throw(
+                typesem.InvalidTypeError
+            )
 
         wrong_testcases = (
             (
@@ -116,7 +118,7 @@ class TestTable(unittest.TestCase):
                     "type int = IntCon",
                     "type unit = UnitCon",
                 ),
-                type.RedefBuiltinTypeError,
+                typesem.RedefBuiltinTypeError,
                 1
             ),
             (
@@ -127,7 +129,7 @@ class TestTable(unittest.TestCase):
                     type two = Con
                     """,
                 ),
-                type.RedefConstructorError,
+                typesem.RedefConstructorError,
                 2
             ),
             (
@@ -137,28 +139,28 @@ class TestTable(unittest.TestCase):
                     type same = Foo2
                     """,
                 ),
-                type.RedefUserTypeError,
+                typesem.RedefUserTypeError,
                 2
             ),
             (
                 (
                     "type what = What of undeftype",
                 ),
-                type.UndefTypeError,
+                typesem.UndefTypeError,
                 1
             ),
             (
                 (
                     "type invalid = Foo of (array of int) ref",
                 ),
-                type.RefOfArrayError,
+                typesem.RefOfArrayError,
                 1
             )
         )
 
         for cases, error, exc_node_count in wrong_testcases:
             for case in cases:
-                table = type.Table()
+                table = typesem.Table()
                 tree = parse.quiet_parse(case)
                 with self.assertRaises(error) as context:
                     for typeDefList in tree:
@@ -174,13 +176,13 @@ class TestTable(unittest.TestCase):
 
     def test_validate(self):
         """Test the validating of types."""
-        table = type.Table()
+        table = typesem.Table()
         foo_tree = parse.quiet_parse("type foo = Foo")
         for typeDefList in foo_tree:
             table.process(typeDefList)
 
         proc = table.validate
-        error = type.InvalidTypeError
+        error = typesem.InvalidTypeError
 
         for typecon in ast.builtin_types_map.values():
             proc.when.called_with(typecon()).shouldnt.throw(error)
@@ -220,7 +222,7 @@ class TestTable(unittest.TestCase):
                     "(array of (array of int)) -> int",
                     "((array of (array of int)) -> int) ref",
                 ),
-                type.ArrayOfArrayError
+                typesem.ArrayOfArrayError
             ),
             (
                 (
@@ -228,7 +230,7 @@ class TestTable(unittest.TestCase):
                     "((array of int) ref) -> int",
                     "array of ((array of int) ref)",
                 ),
-                type.RefOfArrayError
+                typesem.RefOfArrayError
             ),
             (
                 (
@@ -236,13 +238,13 @@ class TestTable(unittest.TestCase):
                     "int -> (int -> array of int)",
                     "(int -> array of int) ref",
                 ),
-                type.ArrayReturnError
+                typesem.ArrayReturnError
             ),
             (
                 (
                     "undeftype",
                 ),
-                type.UndefTypeError
+                typesem.UndefTypeError
             )
         )
 
