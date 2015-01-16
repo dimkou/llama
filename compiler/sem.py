@@ -63,7 +63,8 @@ class Analyzer:
         self._dispatcher[type(node)](node)
 
     def analyze(self, program):
-        pass
+        for definition in program:
+            self._dispatch(definition)
 
     def analyze_letdef(self, letdef):
         pass
