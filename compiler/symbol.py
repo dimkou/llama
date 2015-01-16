@@ -33,6 +33,13 @@ class RedefIdentifierError(SymbolError):
     _prev_error_msg = " previous definition"
 
 
+class UndefIdentifierError(SymbolError):
+    """Exception thrown on detecting reference to undefined identifier."""
+    @property
+    def _node_error_msg(self):
+        return "Undefined name %s" % self.node.name
+
+
 class Scope:
     """
     A scope of the symbol table. Contains a list of entries,
