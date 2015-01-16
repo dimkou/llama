@@ -59,6 +59,18 @@ class Analyzer:
             # well as type declarations.
         }
 
+        self._unop_dispatcher = {
+            "!": self.analyze_bang_expression,
+
+            "not": self.analyze_not_expression,
+
+            "+": self.analyze_int_sign_expression,
+            "-": self.analyze_int_sign_expression,
+
+            "+.": self.analyze_float_sign_expression,
+            "-.": self.analyze_float_sign_expression
+        }
+
     def _dispatch(self, node):
         self._dispatcher[type(node)](node)
 
@@ -118,12 +130,19 @@ class Analyzer:
         pass
 
     def analyze_unary_expression(self, expression):
-        pass
+        self._unop_dispatcher[expression.operator](expression)
+        self._dispatch(expression.operand)
 
     def analyze_bang_expression(self, expression):
         pass
 
-    def analyze_sign_expression(self, expression):
+    def analyze_not_expression(self, expression):
+        pass
+
+    def analyze_int_sign_expression(self, expression):
+        pass
+
+    def analyze_float_sign_expression(self, expression):
         pass
 
     def analyze_binary_expression(self, expression):
