@@ -30,7 +30,7 @@ class RedefIdentifierError(SymbolError):
     def _node_error_msg(self):
         return "Redefining name %s in same scope" % self.node.name
 
-    _prev_error_msg = ": previous definition"
+    _prev_error_msg = " previous definition"
 
 
 class Scope:
