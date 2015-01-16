@@ -98,7 +98,15 @@ class Analyzer:
             self.logger.error(str(e))
 
     def analyze_function_def(self, definition):
-        pass
+        scope = self.symbol_table.open_scope()
+        assert scope.visible, "New scope is invisible."
+        self._insert_symbols(definition.params)
+
+        for param in definition.params:
+            self._dispatch(param)
+
+        self._dispatch(definition.body)
+        self.symbol_table.close_scope()
 
     def analyze_variable_def(self, definition):
         pass
