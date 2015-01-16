@@ -62,12 +62,34 @@ class Analyzer:
     def _dispatch(self, node):
         self._dispatcher[type(node)](node)
 
+    def _insert_symbol(self, sym):
+        try:
+            self.symbol_table.insert_symbol(sym)
+        except symbol.SymbolError as e:
+            self.logger.error(str(e))
+
+    def _insert_symbols(self, symbols):
+        for sym in symbols:
+            self._insert_symbol(sym)
+
     def analyze(self, program):
         for definition in program:
             self._dispatch(definition)
 
     def analyze_letdef(self, letdef):
-        pass
+        scope = self.symbol_table.open_scope()
+        if letdef.isRec:
+            assert scope.visible, "New scope is invisible."
+            self._insert_symbols(letdef)
+        else:
+            scope.visible = False
+
+        for definition in letdef:
+            self._dispatch(definition)
+
+        if not letdef.isRec:
+            scope.visible = True
+            self._insert_symbols(letdef)
 
     def analyze_typedef(self, typedef):
         pass
