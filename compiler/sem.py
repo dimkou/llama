@@ -92,7 +92,10 @@ class Analyzer:
             self._insert_symbols(letdef)
 
     def analyze_typedef(self, typedef):
-        pass
+        try:
+            self.type_table.process(typedef)
+        except typesem.InvalidTypeError as e:
+            self.logger.error(str(e))
 
     def analyze_function_def(self, definition):
         pass
