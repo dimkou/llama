@@ -369,18 +369,18 @@ class NodeError(Exception):
 
     def __str__(self):
         """Format and return the exception's message."""
-        node_msg = "".join(
+        node_msg = "".join((
             self.node.pos_to_str(),
             self._err_level,
             self._node_error_msg
-        )
+        ))
 
         if self.prev is not None:
-            prev_msg = "".join(
+            prev_msg = "".join((
                 self._prev_prefix,
                 self.prev.pos_to_str(),
                 self._prev_error_msg
-            )
+            ))
         else:
             prev_msg = ""
 
