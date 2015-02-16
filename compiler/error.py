@@ -12,8 +12,10 @@ import logging
 
 
 class LoggerInterface:
+
     """
     Interface and minimal implementation of a logger.
+
     Mainly used for testing purposes.
     """
 
@@ -52,15 +54,20 @@ class LoggerInterface:
 
 
 class LoggerMock(LoggerInterface):
+
     """Mock of a full logger. Mainly used for testing purposes."""
+
     pass
 
 
 class Logger(LoggerInterface):
+
     """
-    Simple error logger for the llama compiler. Provides methods for
-    logging and reporting errors of varying severities.
-    It is intended that all modules share one instance of this class.
+    Simple error logger for the llama compiler.
+
+    Provides methods for logging and reporting errors of varying
+    severities. It is intended that all modules share one instance of
+    this class.
     """
 
     # Number of Logger instances created

@@ -23,7 +23,6 @@ OPTS = collections.defaultdict(lambda: None)
 
 def mk_cli_parser():
     """Generate a cli parser for the llama compiler."""
-
     cli_parser = argparse.ArgumentParser(
         description="Llama compiler.",
         epilog="Use at your own RISC."
@@ -97,6 +96,7 @@ def mk_cli_parser():
 def read_program(input_file):
     """
     Read input from file or stdin (if a file is not provided).
+
     Return read program as a single string.
     """
     if input_file == "<stdin>":
@@ -117,9 +117,7 @@ def read_program(input_file):
 
 
 def main():
-    """One function to invoke them all!"""
-
-    # Parse command line.
+    """Invoke compiler on input text."""
     parser = mk_cli_parser()
     args = parser.parse_args()
 

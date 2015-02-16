@@ -41,7 +41,6 @@ class Scope:
 
     def __init__(self, entries, visible, nesting):
         """Make a new scope."""
-
         # List of names defined in the scope.
         # Mainly used for clean-up upon closing the scope.
         self.entries = entries
