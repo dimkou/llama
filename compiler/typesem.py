@@ -88,7 +88,6 @@ class Table:
 
     def __init__(self):
         """Initialize a new Table."""
-
         # Dictionary of types seen so far. Builtin types always available.
         # Values : list of constructors which the type defines
         # This is a smartdict, so keys can be retrieved.
@@ -190,7 +189,6 @@ class Table:
         Analyse a user-defined type. Perform semantic checks
         and insert type in the TypeTable.
         """
-
         # First, insert all newly-defined types.
         for tdef in typeDefList:
             self._insert_new_type(tdef.type)

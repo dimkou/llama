@@ -72,26 +72,35 @@ class Node(metaclass=abc.ABCMeta):
 
 
 class DataNode(Node):
+
     """A node to which a definite type can and should be assigned."""
+
     type = None
 
 
 class Expression(DataNode):
+
     """An expression that can be evaluated."""
+
     pass
 
 
 class Def(Node):
+
     """Definition of a new name."""
+
     pass
 
 
 class NameNode(collections.abc.Hashable, Node):
+
     """
-    A node with a user-defined name that possibly requires
-    scope-aware disambiguation or checking.
+    A node with a user-defined name.
+
+    Possibly requires scope-aware disambiguation or checking.
     Provides basic hashing functionality.
     """
+
     name = None
 
     def __hash__(self):
@@ -100,10 +109,13 @@ class NameNode(collections.abc.Hashable, Node):
 
 
 class ListNode(collections.abc.Iterable, Node):
+
     """
     A node carrying a list of ast nodes.
+
     Supports iterating through the nodes list.
     """
+
     list = None
 
     def __iter__(self):
@@ -111,12 +123,16 @@ class ListNode(collections.abc.Iterable, Node):
 
 
 class Type(Node):
+
     """A node representing a type."""
+
     pass
 
 
 class Builtin(Type, NameNode):
+
     """One of the builtin types."""
+
     def __init__(self):
         self.name = self.__class__.__name__.lower()
 
@@ -319,6 +335,7 @@ builtin_types_map = {
 
 
 class User(Type, NameNode):
+
     """A user-defined type."""
 
     def __init__(self, name):
@@ -350,6 +367,7 @@ class Function(Type):
 # == BASE ERROR CLASS ==
 
 class NodeError(Exception):
+
     """
     Exception thrown on detecting a (semantic) error on an AST node.
 

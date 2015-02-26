@@ -1,9 +1,13 @@
 class Smartdict(dict):
-    """A dict which can return its keys for inspection.
 
-    Useful when keys contain information overlooked by equality."""
+    """
+    A dict which can return its keys for inspection.
+
+    Useful when keys contain information overlooked by equality.
+    """
 
     def __init__(self):
+        """Initialize an empty smartdict."""
         self.keydict = {}
 
     def __delitem__(self, key):
