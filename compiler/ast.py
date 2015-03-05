@@ -85,13 +85,6 @@ class Expression(DataNode):
     pass
 
 
-class Def(Node):
-
-    """Definition of a new name."""
-
-    pass
-
-
 class NameNode(collections.abc.Hashable, Node):
 
     """
@@ -106,6 +99,13 @@ class NameNode(collections.abc.Hashable, Node):
     def __hash__(self):
         """Simple hash. Override as needed."""
         return hash(self.name)
+
+
+class Def(NameNode):
+
+    """Definition of a new name."""
+
+    pass
 
 
 class ListNode(collections.abc.Iterable, Node):
@@ -150,7 +150,7 @@ class LetDef(ListNode):
         self.isRec = isRec
 
 
-class FunctionDef(Def, NameNode):
+class FunctionDef(Def):
     def __init__(self, name, params, body, type=None):
         self.name = name
         self.params = params
@@ -278,13 +278,13 @@ class WhileExpression(Expression):
         self.body = body
 
 
-class VariableDef(Def, NameNode):
+class VariableDef(Def):
     def __init__(self, name, type=None):
         self.name = name
         self.type = type
 
 
-class ArrayVariableDef(VariableDef, NameNode):
+class ArrayVariableDef(VariableDef):
     def __init__(self, name, dimensions, type=None):
         self.name = name
         self.dimensions = dimensions

@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 """
 
-from compiler import error, symbol, typesem
+from compiler import ast, error, symbol, typesem
 
 
 class Analyzer:
@@ -24,7 +24,179 @@ class Analyzer:
         else:
             self.logger = logger
 
+        self._dispatcher = {
+            ast.Program: self.analyze,
+            ast.LetDef: self.analyze_letdef,
+            ast.FunctionDef: self.analyze_function_def,
+            ast.VariableDef: self.analyze_variable_def,
+            ast.ArrayVariableDef: self.analyze_array_variable_def,
+            ast.Param: self.analyze_param,
+            ast.BinaryExpression: self.analyze_binary_expression,
+            ast.UnaryExpression: self.analyze_unary_expression,
+            ast.ConstructorCallExpression:
+                self.analyze_constructor_call_expression,
+            ast.ArrayExpression: self.analyze_array_expression,
+            ast.ConstExpression: self.analyze_const_expression,
+            ast.ConidExpression: self.analyze_conid_expression,
+            ast.GenidExpression: self.analyze_genid_expression,
+            ast.DeleteExpression: self.analyze_delete_expression,
+            ast.DimExpression: self.analyze_dim_expression,
+            ast.ForExpression: self.analyze_for_expression,
+            ast.FunctionCallExpression:
+                self.analyze_function_call_expression,
+            ast.LetInExpression: self.analyze_let_in_expression,
+            ast.IfExpression: self.analyze_if_expression,
+            ast.MatchExpression: self.analyze_match_expression,
+            ast.NewExpression: self.analyze_new_expression,
+            ast.WhileExpression: self.analyze_while_expression,
+            ast.Clause: self.analyze_clause,
+            ast.Pattern: self.analyze_pattern,
+            ast.GenidPattern: self.analyze_genid_pattern,
+
+            list: self.analyze_typedef,  # TODO: Redo ast.TypeDef?
+            # NOTE: Some ast nodes are omitted, as they are
+            # processed elsewhere. These include type annotations as
+            # well as type declarations.
+        }
+
+        self._unop_dispatcher = {
+            "!": self.analyze_bang_expression,
+
+            "not": self.analyze_not_expression,
+
+            "+": self.analyze_int_sign_expression,
+            "-": self.analyze_int_sign_expression,
+
+            "+.": self.analyze_float_sign_expression,
+            "-.": self.analyze_float_sign_expression
+        }
+
+    def _dispatch(self, node):
+        self._dispatcher[type(node)](node)
+
+    def _insert_symbol(self, sym):
+        try:
+            self.symbol_table.insert_symbol(sym)
+        except symbol.SymbolError as e:
+            self.logger.error(str(e))
+
+    def _insert_symbols(self, symbols):
+        for sym in symbols:
+            self._insert_symbol(sym)
+
     def analyze(self, program):
+        for definition in program:
+            self._dispatch(definition)
+
+    def analyze_letdef(self, letdef):
+        scope = self.symbol_table.open_scope()
+        if letdef.isRec:
+            assert scope.visible, "New scope is invisible."
+            self._insert_symbols(letdef)
+        else:
+            scope.visible = False
+
+        for definition in letdef:
+            self._dispatch(definition)
+
+        if not letdef.isRec:
+            scope.visible = True
+            self._insert_symbols(letdef)
+
+    def analyze_typedef(self, typedef):
+        try:
+            self.type_table.process(typedef)
+        except typesem.InvalidTypeError as e:
+            self.logger.error(str(e))
+
+    def analyze_function_def(self, definition):
+        scope = self.symbol_table.open_scope()
+        assert scope.visible, "New scope is invisible."
+        self._insert_symbols(definition.params)
+
+        for param in definition.params:
+            self._dispatch(param)
+
+        self._dispatch(definition.body)
+        self.symbol_table.close_scope()
+
+    def analyze_variable_def(self, definition):
+        pass
+
+    def analyze_array_variable_def(self, definition):
+        pass
+
+    def analyze_param(self, param):
+        pass
+
+    def analyze_unary_expression(self, expression):
+        self._unop_dispatcher[expression.operator](expression)
+        self._dispatch(expression.operand)
+
+    def analyze_bang_expression(self, expression):
+        pass
+
+    def analyze_not_expression(self, expression):
+        pass
+
+    def analyze_int_sign_expression(self, expression):
+        pass
+
+    def analyze_float_sign_expression(self, expression):
+        pass
+
+    def analyze_binary_expression(self, expression):
+        pass
+
+    def analyze_constructor_call_expression(self, expression):
+        pass
+
+    def analyze_array_expression(self, expression):
+        pass
+
+    def analyze_const_expression(self, expression):
+        pass
+
+    def analyze_conid_expression(self, expression):
+        pass
+
+    def analyze_genid_expression(self, expression):
+        pass
+
+    def analyze_delete_expression(self, expression):
+        pass
+
+    def analyze_dim_expression(self, expression):
+        pass
+
+    def analyze_for_expression(self, expression):
+        pass
+
+    def analyze_function_call_expression(self, expression):
+        pass
+
+    def analyze_let_in_expression(self, expression):
+        pass
+
+    def analyze_if_expression(self, expression):
+        pass
+
+    def analyze_match_expression(self, expression):
+        pass
+
+    def analyze_new_expression(self, expression):
+        pass
+
+    def analyze_while_expression(self, expression):
+        pass
+
+    def analyze_clause(self, clause):
+        pass
+
+    def analyze_pattern(self, pattern):
+        pass
+
+    def analyze_genid_pattern(self, pattern):
         pass
 
 

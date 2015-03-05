@@ -54,7 +54,7 @@ class RedefConstructorError(InvalidTypeError):
     def _node_error_msg(self):
         return "Redefining constructor %s" % self.node.name
 
-    _prev_error_msg = ": previous definition"
+    _prev_error_msg = " previous definition"
 
 
 class RedefUserTypeError(InvalidTypeError):
@@ -63,7 +63,7 @@ class RedefUserTypeError(InvalidTypeError):
     def _node_error_msg(self):
         return "Redefining user type %s" % self.node.name
 
-    _prev_error_msg = ": previous definition"
+    _prev_error_msg = " previous definition"
 
 
 class UndefTypeError(InvalidTypeError):
