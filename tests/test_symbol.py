@@ -39,19 +39,19 @@ class TestTableAPI(unittest.TestCase):
         table.insert_symbol.when.called_with(expr).shouldnt.throw(error1)
 
         # Query whether a "foo" is defined in current scope.
-        table.find_symbol_in_current_scope(expr).should.be(expr)
-        table.find_symbol_in_current_scope(param).should.be(expr)
-        table.find_symbol_in_current_scope(ast.Param("bar")).should.be(None)
+        table.lookup_in_current_scope(expr.name).should.be(expr)
+        table.lookup_in_current_scope(param.name).should.be(expr)
+        table.lookup_in_current_scope("bar").should.be(None)
 
         # Find the live definition of a "foo"
-        table.find_live_def(expr).should.be(expr)
-        table.find_live_def(param).should.be(expr)
-        table.find_live_def(ast.Param("bar")).should.be(None)
+        table.lookup_live_definition(expr.name).should.be(expr)
+        table.lookup_live_definition(param.name).should.be(expr)
+        table.lookup_live_definition("bar").should.be(None)
 
         # Check for scope effectiveness.
         table.open_scope()
-        table.find_symbol_in_current_scope(expr).should.be(None)
-        table.find_live_def(expr).should.be(expr)
+        table.lookup_in_current_scope(expr.name).should.be(None)
+        table.lookup_live_definition(expr.name).should.be(expr)
         table.close_scope()
 
         # Reject inserting another "foo" in same scope
@@ -67,17 +67,17 @@ class TestTableAPI(unittest.TestCase):
         table.insert_symbol.when.called_with(param).shouldnt.throw(error1)
 
         # Query the newly defined "foo"
-        table.find_symbol_in_current_scope(expr).should.be(param)
-        table.find_symbol_in_current_scope(param).should.be(param)
+        table.lookup_in_current_scope(expr.name).should.be(param)
+        table.lookup_in_current_scope(param.name).should.be(param)
 
         # Check for proper shadowing
-        table.find_live_def(expr).should.be(param)
-        table.find_live_def(param).should.be(param)
+        table.lookup_live_definition(expr.name).should.be(param)
+        table.lookup_live_definition(param.name).should.be(param)
 
         # Check visibility honouring/ignoring.
         scope2b.visible = False
-        table.find_live_def(param).should.be(expr)
-        table.find_symbol_in_current_scope(param).should.be(param)
+        table.lookup_live_definition(param.name).should.be(expr)
+        table.lookup_in_current_scope(param.name).should.be(param)
         scope2b.visible = True
 
         # Check for gracefull shutdown.
