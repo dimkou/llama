@@ -163,7 +163,7 @@ class Table:
 #             self.cur_scope.entries.append(entry)
 #
 
-    def find_live_def(self, name):
+    def lookup_live_definition(self, name):
         """
         Find the definition governing the given use of 'name',
         starting from the current scope and going upwards, honouring
@@ -175,7 +175,7 @@ class Table:
                 return entry.node
         return None
 
-    def find_symbol_in_current_scope(self, name):
+    def lookup_in_current_scope(self, name):
         """
         Lookup 'name' in current scope, ignoring visibility.
         If lookup succeeds, return the stored node, None otherwise.
@@ -202,7 +202,7 @@ class Table:
         assert self.cur_scope, 'No scope to insert into.'
         assert isinstance(node, ast.NameNode), 'Node is not a NameNode.'
 
-        prev = self.find_symbol_in_current_scope(node.name)
+        prev = self.lookup_in_current_scope(node.name)
         if prev is not None:
             raise RedefIdentifierError(node, prev)
 
