@@ -163,28 +163,27 @@ class Table:
 #             self.cur_scope.entries.append(entry)
 #
 
-    def find_live_def(self, node):
+    def find_live_def(self, name):
         """
-        Find the definition governing the given use of 'node',
+        Find the definition governing the given use of 'name',
         starting from the current scope and going upwards, honouring
         scope visibilities.
         If lookup succeeds, return the stored node, None otherwise.
         """
-        ename = node.name
-        for entry in reversed(self._hash_table[ename]):
+        for entry in reversed(self._hash_table[name]):
             if entry.scope.visible:
                 return entry.node
         return None
 
-    def find_symbol_in_current_scope(self, node):
+    def find_symbol_in_current_scope(self, name):
         """
-        Lookup name of 'node' in current scope, ignoring visibility.
+        Lookup 'name' in current scope, ignoring visibility.
         If lookup succeeds, return the stored node, None otherwise.
         """
         assert self.cur_scope, 'No scope to search.'
 
         try:
-            entry = self._hash_table[node.name][-1]
+            entry = self._hash_table[name][-1]
         except IndexError:
             # NOTE: Using defaultdict means KeyError never happens.
             return None
@@ -203,7 +202,7 @@ class Table:
         assert self.cur_scope, 'No scope to insert into.'
         assert isinstance(node, ast.NameNode), 'Node is not a NameNode.'
 
-        prev = self.find_symbol_in_current_scope(node)
+        prev = self.find_symbol_in_current_scope(node.name)
         if prev is not None:
             raise RedefIdentifierError(node, prev)
 
