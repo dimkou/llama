@@ -39,6 +39,10 @@ class TestTypeAPI(unittest.TestCase):
         exc = typesem.UndefTypeError
         self.assertTrue(issubclass(exc, typesem.InvalidTypeError))
 
+    def test_undef_constructor_error(self):
+        exc = typesem.UndefConstructorError
+        self.assertTrue(issubclass(exc, typesem.InvalidTypeError))
+
     def test_table_init(self):
         typesem.Table()
 

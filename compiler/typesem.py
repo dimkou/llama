@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 """
 
-from compiler import ast, smartdict
+from compiler import ast
 
 # == INVALID TYPE ERRORS ==
 
@@ -46,6 +46,13 @@ class RedefBuiltinTypeError(InvalidTypeError):
     @property
     def _node_error_msg(self):
         return "Redefining builtin type %s" % self.node.name
+
+
+class UndefConstructorError(InvalidTypeError):
+    """Exception thrown on detecting reference to undefined constructor."""
+    @property
+    def _node_error_msg(self):
+        return "Undefined constructor: %s" % self.node.name
 
 
 class RedefConstructorError(InvalidTypeError):
@@ -89,16 +96,17 @@ class Table:
     def __init__(self):
         """Initialize a new Table."""
         # Dictionary of types seen so far. Builtin types always available.
-        # Values : list of constructors which the type defines
-        # This is a smartdict, so keys can be retrieved.
-        self.knownTypes = smartdict.Smartdict()
+        # Keys  : names of types
+        # Values: (definition node, constructors list)
+        self.known_types = dict()
         for typecon in ast.builtin_types_map.values():
-            self.knownTypes[typecon()] = None
+            type_instance = typecon()
+            self.known_types[type_instance.name] = (type_instance, [])
 
         # Dictionary of constructors encountered so far.
-        # Value: Type which the constructor produces.
-        # This is a smartdict, so keys can be retrieved.
-        self.knownConstructors = smartdict.Smartdict()
+        # Keys : Name of constructor
+        # Value: (definition node, produced type)
+        self.known_constructors = dict()
 
         # Bulk-add dispatching for builtin types.
         self._dispatcher = {
@@ -145,7 +153,7 @@ class Table:
 
     def _validate_user(self, t):
         """A user-defined type is valid, unless referencing an unknown type."""
-        if t not in self.knownTypes:
+        if t.name not in self.known_types:
             raise UndefTypeError(t)
 
     def validate(self, t):
@@ -155,48 +163,52 @@ class Table:
         """
         return self._dispatcher[type(t)](t)
 
-    def _insert_new_type(self, newType):
+    def _insert_new_type(self, new_type):
         """
         Insert newly defined type in Table. Signal error on redefinition.
         """
-        existingType = self.knownTypes.getKey(newType)
-        if existingType is None:
-            self.knownTypes[newType] = []
+        existing_type, _ = self.known_types.get(new_type.name, (None, []))
+        if existing_type is None:
+            self.known_types[new_type.name] = (new_type, [])
             return
 
-        if isinstance(existingType, ast.Builtin):
-            raise RedefBuiltinTypeError(newType)
+        if isinstance(existing_type, ast.Builtin):
+            raise RedefBuiltinTypeError(new_type)
         else:
-            raise RedefUserTypeError(newType, existingType)
+            raise RedefUserTypeError(new_type, existing_type)
 
-    def _insert_new_constructor(self, newType, constructor):
+    def _insert_new_constructor(self, new_type, new_constructor):
         """
         Insert new constructor in Table. Signal error if constructor is reused
         or arguments are invalid types.
         """
-        existingConstructor = self.knownConstructors.getKey(constructor)
-        if existingConstructor is None:
-            self.knownTypes[newType].append(constructor)
-            self.knownConstructors[constructor] = newType
+        existing_constructor, _ = self.known_constructors.get(
+            new_constructor.name, (None, None)
+        )
+        if existing_constructor is None:
+            self.known_types[new_type.name][1].append(new_constructor)
+            self.known_constructors[new_constructor.name] = (
+                new_constructor, new_type
+            )
 
-            for argType in constructor:
+            for argType in new_constructor:
                 self.validate(argType)
         else:
-            raise RedefConstructorError(constructor, existingConstructor)
+            raise RedefConstructorError(new_constructor, existing_constructor)
 
-    def process(self, typeDefList):
+    def process(self, type_defs):
         """
         Analyse a user-defined type. Perform semantic checks
         and insert type in the TypeTable.
         """
         # First, insert all newly-defined types.
-        for tdef in typeDefList:
+        for tdef in type_defs:
             self._insert_new_type(tdef.type)
 
         # Then, process each constructor and its arguments.
-        for tdef in typeDefList:
-            newType = tdef.type
+        for tdef in type_defs:
+            new_type = tdef.type
             for constructor in tdef:
-                self._insert_new_constructor(newType, constructor)
+                self._insert_new_constructor(new_type, constructor)
 
         # TODO: Emit warnings when typenames clash with definition names.
