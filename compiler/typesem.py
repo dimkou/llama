@@ -48,6 +48,13 @@ class RedefBuiltinTypeError(InvalidTypeError):
         return "Redefining builtin type %s" % self.node.name
 
 
+class UndefConstructorError(InvalidTypeError):
+    """Exception thrown on detecting reference to undefined constructor."""
+    @property
+    def _node_error_msg(self):
+        return "Undefined constructor: %s" % self.node.name
+
+
 class RedefConstructorError(InvalidTypeError):
     """Exception thrown on detecting redefinition of constructor."""
     @property
