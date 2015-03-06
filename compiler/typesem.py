@@ -91,15 +91,15 @@ class Table:
         # Dictionary of types seen so far. Builtin types always available.
         # Keys  : names of types
         # Values: (definition node, constructors list)
-        self.knownTypes = dict()
+        self.known_types = dict()
         for typecon in ast.builtin_types_map.values():
             type_instance = typecon()
-            self.knownTypes[type_instance.name] = (type_instance, [])
+            self.known_types[type_instance.name] = (type_instance, [])
 
         # Dictionary of constructors encountered so far.
         # Keys : Name of constructor
         # Value: (definition node, produced type)
-        self.knownConstructors = dict()
+        self.known_constructors = dict()
 
         # Bulk-add dispatching for builtin types.
         self._dispatcher = {
@@ -146,7 +146,7 @@ class Table:
 
     def _validate_user(self, t):
         """A user-defined type is valid, unless referencing an unknown type."""
-        if t.name not in self.knownTypes:
+        if t.name not in self.known_types:
             raise UndefTypeError(t)
 
     def validate(self, t):
@@ -156,52 +156,52 @@ class Table:
         """
         return self._dispatcher[type(t)](t)
 
-    def _insert_new_type(self, newType):
+    def _insert_new_type(self, new_type):
         """
         Insert newly defined type in Table. Signal error on redefinition.
         """
-        existingType, _ = self.knownTypes.get(newType.name, (None, []))
-        if existingType is None:
-            self.knownTypes[newType.name] = (newType, [])
+        existing_type, _ = self.known_types.get(new_type.name, (None, []))
+        if existing_type is None:
+            self.known_types[new_type.name] = (new_type, [])
             return
 
-        if isinstance(existingType, ast.Builtin):
-            raise RedefBuiltinTypeError(newType)
+        if isinstance(existing_type, ast.Builtin):
+            raise RedefBuiltinTypeError(new_type)
         else:
-            raise RedefUserTypeError(newType, existingType)
+            raise RedefUserTypeError(new_type, existing_type)
 
-    def _insert_new_constructor(self, newType, constructor):
+    def _insert_new_constructor(self, new_type, new_constructor):
         """
         Insert new constructor in Table. Signal error if constructor is reused
         or arguments are invalid types.
         """
-        existingConstructor, _ = self.knownConstructors.get(
-            constructor.name, (None, None)
+        existing_constructor, _ = self.known_constructors.get(
+            new_constructor.name, (None, None)
         )
-        if existingConstructor is None:
-            self.knownTypes[newType.name][1].append(constructor)
-            self.knownConstructors[constructor.name] = (
-                constructor, newType
+        if existing_constructor is None:
+            self.known_types[new_type.name][1].append(new_constructor)
+            self.known_constructors[new_constructor.name] = (
+                new_constructor, new_type
             )
 
-            for argType in constructor:
+            for argType in new_constructor:
                 self.validate(argType)
         else:
-            raise RedefConstructorError(constructor, existingConstructor)
+            raise RedefConstructorError(new_constructor, existing_constructor)
 
-    def process(self, typeDefList):
+    def process(self, type_defs):
         """
         Analyse a user-defined type. Perform semantic checks
         and insert type in the TypeTable.
         """
         # First, insert all newly-defined types.
-        for tdef in typeDefList:
+        for tdef in type_defs:
             self._insert_new_type(tdef.type)
 
         # Then, process each constructor and its arguments.
-        for tdef in typeDefList:
-            newType = tdef.type
+        for tdef in type_defs:
+            new_type = tdef.type
             for constructor in tdef:
-                self._insert_new_constructor(newType, constructor)
+                self._insert_new_constructor(new_type, constructor)
 
         # TODO: Emit warnings when typenames clash with definition names.
