@@ -372,11 +372,11 @@ class _LexerFactory:
         r'[a-z][A-Za-z0-9_]*'
         tok.type = reserved_tokens.get(tok.value, tok.type)
 
-        booleans = {
+        str_to_bool_map = {
             'TRUE': True,
             'FALSE': False
         }
-        tok.value = booleans.get(tok.type, tok.value)
+        tok.value = str_to_bool_map.get(tok.type, tok.value)
 
         return tok
 
