@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 """
 
-from compiler import ast, smartdict
+from compiler import ast
 
 # == INVALID TYPE ERRORS ==
 
@@ -89,16 +89,17 @@ class Table:
     def __init__(self):
         """Initialize a new Table."""
         # Dictionary of types seen so far. Builtin types always available.
-        # Values : list of constructors which the type defines
-        # This is a smartdict, so keys can be retrieved.
-        self.knownTypes = smartdict.Smartdict()
+        # Keys  : names of types
+        # Values: (definition node, constructors list)
+        self.knownTypes = dict()
         for typecon in ast.builtin_types_map.values():
-            self.knownTypes[typecon()] = None
+            type_instance = typecon()
+            self.knownTypes[type_instance.name] = (type_instance, [])
 
         # Dictionary of constructors encountered so far.
-        # Value: Type which the constructor produces.
-        # This is a smartdict, so keys can be retrieved.
-        self.knownConstructors = smartdict.Smartdict()
+        # Keys : Name of constructor
+        # Value: (definition node, produced type)
+        self.knownConstructors = dict()
 
         # Bulk-add dispatching for builtin types.
         self._dispatcher = {
@@ -145,7 +146,7 @@ class Table:
 
     def _validate_user(self, t):
         """A user-defined type is valid, unless referencing an unknown type."""
-        if t not in self.knownTypes:
+        if t.name not in self.knownTypes:
             raise UndefTypeError(t)
 
     def validate(self, t):
@@ -159,9 +160,9 @@ class Table:
         """
         Insert newly defined type in Table. Signal error on redefinition.
         """
-        existingType = self.knownTypes.getKey(newType)
+        existingType, _ = self.knownTypes.get(newType.name, (None, []))
         if existingType is None:
-            self.knownTypes[newType] = []
+            self.knownTypes[newType.name] = (newType, [])
             return
 
         if isinstance(existingType, ast.Builtin):
@@ -174,10 +175,14 @@ class Table:
         Insert new constructor in Table. Signal error if constructor is reused
         or arguments are invalid types.
         """
-        existingConstructor = self.knownConstructors.getKey(constructor)
+        existingConstructor, _ = self.knownConstructors.get(
+            constructor.name, (None, None)
+        )
         if existingConstructor is None:
-            self.knownTypes[newType].append(constructor)
-            self.knownConstructors[constructor] = newType
+            self.knownTypes[newType.name][1].append(constructor)
+            self.knownConstructors[constructor.name] = (
+                constructor, newType
+            )
 
             for argType in constructor:
                 self.validate(argType)
