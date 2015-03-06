@@ -98,15 +98,15 @@ class Table:
         # Dictionary of types seen so far. Builtin types always available.
         # Keys  : names of types
         # Values: (definition node, constructors list)
-        self.known_types = dict()
+        self._known_types = dict()
         for typecon in ast.builtin_types_map.values():
             type_instance = typecon()
-            self.known_types[type_instance.name] = (type_instance, [])
+            self._known_types[type_instance.name] = (type_instance, [])
 
         # Dictionary of constructors encountered so far.
         # Keys : Name of constructor
         # Value: (definition node, produced type)
-        self.known_constructors = dict()
+        self._known_constructors = dict()
 
         # Bulk-add dispatching for builtin types.
         self._dispatcher = {
@@ -153,7 +153,7 @@ class Table:
 
     def _validate_user(self, t):
         """A user-defined type is valid, unless referencing an unknown type."""
-        if t.name not in self.known_types:
+        if t.name not in self._known_types:
             raise UndefTypeError(t)
 
     def validate(self, t):
@@ -167,9 +167,9 @@ class Table:
         """
         Insert newly defined type in Table. Signal error on redefinition.
         """
-        existing_type, _ = self.known_types.get(new_type.name, (None, []))
+        existing_type, _ = self._known_types.get(new_type.name, (None, []))
         if existing_type is None:
-            self.known_types[new_type.name] = (new_type, [])
+            self._known_types[new_type.name] = (new_type, [])
             return
 
         if isinstance(existing_type, ast.Builtin):
@@ -182,12 +182,12 @@ class Table:
         Insert new constructor in Table. Signal error if constructor is reused
         or arguments are invalid types.
         """
-        existing_constructor, _ = self.known_constructors.get(
+        existing_constructor, _ = self._known_constructors.get(
             new_constructor.name, (None, None)
         )
         if existing_constructor is None:
-            self.known_types[new_type.name][1].append(new_constructor)
-            self.known_constructors[new_constructor.name] = (
+            self._known_types[new_type.name][1].append(new_constructor)
+            self._known_constructors[new_constructor.name] = (
                 new_constructor, new_type
             )
 
@@ -212,3 +212,24 @@ class Table:
                 self._insert_new_constructor(new_type, constructor)
 
         # TODO: Emit warnings when typenames clash with definition names.
+
+    def lookup_type(self, name):
+        """
+        Lookup the type named and retrieve stored info.
+
+        If the type is found, a tuple is returned. The tuple contains
+        the definition node of that type and a list of defined constructors,
+        in that order. If the type doesn't exist, None is returned.
+        """
+        return self._known_types.get(name)
+
+    def lookup_constructor(self, name):
+        """
+        Lookup the constructor named and retrieve stored info.
+
+        If the constructor is found, a tuple is returned. The tuple
+        contains the definition node of that constructor and a the node
+        of the produced type, in that order. If the constructor doesn't
+        exist, None is returned.
+        """
+        return self._known_constructors.get(name)
