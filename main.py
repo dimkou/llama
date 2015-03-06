@@ -152,7 +152,7 @@ def main():
     ast = parser.parse(data=data, lexer=lexer)
 
     # On lexing/parsing error, abort further compilation.
-    if not (lexer.logger.success or parser.logger.success):
+    if not (lexer.logger.success and parser.logger.success):
         sys.exit(1)
 
     # Analyze and annotate the AST
@@ -160,6 +160,10 @@ def main():
         logger=error.Logger(inputfile=OPTS["input"], level=logging.DEBUG)
     )
     analyzer.analyze(ast)
+
+    # On semantic error, abort further compilation.
+    if not analyzer.logger.success:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
