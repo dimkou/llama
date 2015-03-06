@@ -97,25 +97,25 @@ class TestLexerRules(unittest.TestCase):
     """Test the Lexer's coverage of Llama vocabulary."""
 
     @staticmethod
-    def _lex_data(input):
+    def _lex_data(text):
         lexer = lex.Lexer(logger=error.LoggerMock())
-        tokens = list(lexer.tokenize(input))
+        tokens = list(lexer.tokenize(text))
         return tokens, lexer.logger
 
-    def _assert_individual_token(self, input, expected_type, expected_value):
-        tokens, logger = self._lex_data(input)
+    def _assert_individual_token(self, text, expected_type, expected_value):
+        tokens, logger = self._lex_data(text)
         tokens.should.have.length_of(1)
         tok = tokens[0]
         tok.type.shouldnt.be.different_of(expected_type)
         tok.value.should.equal(expected_value)
         logger.success.should.be.true
 
-    def _assert_lex_success(self, input):
-        _, logger = self._lex_data(input)
+    def _assert_lex_success(self, text):
+        _, logger = self._lex_data(text)
         logger.success.should.be.true
 
-    def _assert_lex_failure(self, input):
-        _, logger = self._lex_data(input)
+    def _assert_lex_failure(self, text):
+        _, logger = self._lex_data(text)
         logger.success.should.be.false
 
     def test_empty(self):
@@ -172,8 +172,8 @@ class TestLexerRules(unittest.TestCase):
     def test_fconst(self):
         self._assert_individual_token("42.5", "FCONST", 42.5)
         inputs = ["42.0", "4.2e1", "4.2E1", "0.420e+2", "420.0e-1", "420.0E-1"]
-        for input in inputs:
-            self._assert_individual_token(input, "FCONST", 42.0)
+        for text in inputs:
+            self._assert_individual_token(text, "FCONST", 42.0)
 
         self._assert_lex_success("5.41e-901721")
 
@@ -227,11 +227,11 @@ class TestLexerRules(unittest.TestCase):
             r"an e\\xtra la\\zy string"
         )
 
-        for input in testcases:
+        for text in testcases:
             self._assert_individual_token(
-                '"%s"' % (input),
+                '"%s"' % (text),
                 "SCONST",
-                lex.explode(input)
+                lex.explode(text)
             )
 
         self._assert_lex_failure('"')
@@ -240,12 +240,12 @@ class TestLexerRules(unittest.TestCase):
         self._assert_lex_failure('"\na')
 
     def test_operators(self):
-        for input, token in lex.operators.items():
-            self._assert_individual_token(input, token, input)
+        for text, token in lex.operators.items():
+            self._assert_individual_token(text, token, text)
 
     def test_delimiters(self):
-        for input, token in lex.delimiters.items():
-            self._assert_individual_token(input, token, input)
+        for text, token in lex.delimiters.items():
+            self._assert_individual_token(text, token, text)
 
     def test_comments(self):
         self._assert_lex_success('-- just a comment')
