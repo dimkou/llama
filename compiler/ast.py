@@ -31,6 +31,7 @@ class Node(metaclass=abc.ABCMeta):
         Two nodes are equal if they are of the same type
         and have all attributes equal. Override as needed.
         """
+        # pylint: disable=unidiomatic-typecheck
         return type(self) == type(other) and all(
             getattr(self, attr) == getattr(other, attr)
             for attr in self.__dict__.keys()
