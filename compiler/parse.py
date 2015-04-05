@@ -83,24 +83,34 @@ class Parser:
         self._expand_seq(p)
 
     def p_def(self, p):
-        """def : function_def
+        """def : constant_def
+               | function_def
                | var_def"""
         p[0] = p[1]
         _track(p)
 
+    def p_constant_def(self, p):
+        """constant_def : GENID COLON type EQ expr
+                        | GENID EQ expr"""
+        if len(p) == 6:
+            p[0] = ast.ConstantDef(p[1], p[5], p[3])
+        else:
+            p[0] = ast.ConstantDef(p[1], p[3])
+        _track(p)
+
     def p_function_def(self, p):
-        """function_def : GENID param_list COLON type EQ expr
-                        | GENID param_list EQ expr"""
+        """function_def : GENID param_seq COLON type EQ expr
+                        | GENID param_seq EQ expr"""
         if len(p) == 7:
             p[0] = ast.FunctionDef(p[1], p[2], p[6], p[4])
         else:
             p[0] = ast.FunctionDef(p[1], p[2], p[4])
         _track(p)
 
-    def p_param_list(self, p):
-        """param_list : param param_list
-                      | empty"""
-        self._expand_list(p)
+    def p_param_seq(self, p):
+        """param_seq : param param_seq
+                     | param"""
+        self._expand_seq(p, 1, 2)
 
     def p_param(self, p):
         """param : LPAREN GENID COLON type RPAREN
