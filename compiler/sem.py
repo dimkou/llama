@@ -27,6 +27,7 @@ class Analyzer:
         self._dispatcher = {
             ast.Program: self.analyze,
             ast.LetDef: self.analyze_letdef,
+            ast.ConstantDef: self.analyze_constant_def,
             ast.FunctionDef: self.analyze_function_def,
             ast.VariableDef: self.analyze_variable_def,
             ast.ArrayVariableDef: self.analyze_array_variable_def,
@@ -108,6 +109,9 @@ class Analyzer:
             self.type_table.process(typedef)
         except typesem.InvalidTypeError as e:
             self.logger.error(str(e))
+
+    def analyze_constant_def(self, definition):
+        pass
 
     def analyze_function_def(self, definition):
         scope = self.symbol_table.open_scope()
