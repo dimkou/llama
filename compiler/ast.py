@@ -196,7 +196,7 @@ class ArrayExpression(Expression, ListNode, NameNode):
 
 
 class ConstExpression(Expression):
-    def __init__(self, type, value=None):
+    def __init__(self, value, type):
         self.value = value
         self.type = type
 

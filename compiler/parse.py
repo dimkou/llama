@@ -271,12 +271,12 @@ class Parser:
     def p_bconst_simple_expr(self, p):
         """bconst_simple_expr : TRUE
                               | FALSE"""
-        p[0] = ast.ConstExpression(ast.Bool(), p[1])
+        p[0] = ast.ConstExpression(p[1], ast.Bool())
         _track(p)
 
     def p_cconst_simple_expr(self, p):
         """cconst_simple_expr : CCONST"""
-        p[0] = ast.ConstExpression(ast.Char(), p[1])
+        p[0] = ast.ConstExpression(p[1], ast.Char())
         _track(p)
 
     def p_conid_simple_expr(self, p):
@@ -286,12 +286,12 @@ class Parser:
 
     def p_iconst_simple_expr(self, p):
         """iconst_simple_expr : ICONST"""
-        p[0] = ast.ConstExpression(ast.Int(), p[1])
+        p[0] = ast.ConstExpression(p[1], ast.Int())
         _track(p)
 
     def p_fconst_simple_expr(self, p):
         """fconst_simple_expr : FCONST"""
-        p[0] = ast.ConstExpression(ast.Float(), p[1])
+        p[0] = ast.ConstExpression(p[1], ast.Float())
         _track(p)
 
     def p_genid_simple_expr(self, p):
@@ -301,12 +301,12 @@ class Parser:
 
     def p_sconst_simple_expr(self, p):
         """sconst_simple_expr : SCONST"""
-        p[0] = ast.ConstExpression(ast.String(), p[1])
+        p[0] = ast.ConstExpression(p[1], ast.String())
         _track(p)
 
     def p_uconst_simple_expr(self, p):
         """uconst_simple_expr : LPAREN RPAREN"""
-        p[0] = ast.ConstExpression(ast.Unit())
+        p[0] = ast.ConstExpression(None, ast.Unit())
         _track(p)
 
     def p_delete_expr(self, p):
@@ -421,22 +421,22 @@ class Parser:
 
     def p_mfconst_simple_pattern(self, p):
         """mfconst_simple_pattern : FMINUS FCONST"""
-        p[0] = ast.ConstExpression(ast.Float(), -p[2])
+        p[0] = ast.ConstExpression(-p[2], ast.Float())
         _track(p)
 
     def p_pfconst_simple_pattern(self, p):
         """pfconst_simple_pattern : FPLUS FCONST"""
-        p[0] = ast.ConstExpression(ast.Float(), p[2])
+        p[0] = ast.ConstExpression(p[2], ast.Float())
         _track(p)
 
     def p_miconst_simple_pattern(self, p):
         """miconst_simple_pattern : MINUS ICONST"""
-        p[0] = ast.ConstExpression(ast.Int(), -p[2])
+        p[0] = ast.ConstExpression(-p[2], ast.Int())
         _track(p)
 
     def p_piconst_simple_pattern(self, p):
         """piconst_simple_pattern : PLUS ICONST"""
-        p[0] = ast.ConstExpression(ast.Int(), p[2])
+        p[0] = ast.ConstExpression(p[2], ast.Int())
         _track(p)
 
     def p_new_expr(self, p):
