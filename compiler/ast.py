@@ -79,9 +79,6 @@ class DataNode(Node):
 
     type = None
 
-    def __init__(self, type):
-        self.type = type
-
 
 class Expression(DataNode):
 
@@ -165,108 +162,107 @@ class FunctionDef(Def):
 
 class Param(DataNode, NameNode):
     def __init__(self, name, type=None):
-        super().__init__(type)
         self.name = name
         self.type = type
 
 
 class BinaryExpression(Expression):
     def __init__(self, leftOperand, operator, rightOperand):
-        super().__init__(None)
         self.leftOperand = leftOperand
         self.operator = operator
         self.rightOperand = rightOperand
+        self.type = None
 
 
 class UnaryExpression(Expression):
     def __init__(self, operator, operand):
-        super().__init__(None)
         self.operator = operator
         self.operand = operand
+        self.type = None
 
 
 class ConstructorCallExpression(Expression, ListNode, NameNode):
     def __init__(self, name, list):
-        super().__init__(None)
         self.name = name
         self.list = list
+        self.type = None
 
 
 class ArrayExpression(Expression, ListNode, NameNode):
     def __init__(self, name, list):
-        super().__init__(None)
         self.name = name
         self.list = list
+        self.type = None
 
 
 class ConstExpression(Expression):
-    def __init__(self, type, value=None):
-        super().__init__(type)
+    def __init__(self, value, type):
         self.value = value
+        self.type = type
 
 
 class ConidExpression(Expression, NameNode):
     def __init__(self, name):
-        super().__init__(None)
         self.name = name
+        self.type = None
 
 
 class GenidExpression(Expression, NameNode):
     def __init__(self, name):
-        super().__init__(None)
         self.name = name
+        self.type = None
 
 
 class DeleteExpression(Expression):
     def __init__(self, expr):
-        super().__init__(None)
         self.expr = expr
+        self.type = None
 
 
 class DimExpression(Expression, NameNode):
     def __init__(self, name, dimension=1):
-        super().__init__(None)
         self.name = name
         self.dimension = dimension
+        self.type = None
 
 
 class ForExpression(Expression):
     def __init__(self, counter, startExpr, stopExpr, body, isDown=False):
-        super().__init__(None)
         self.counter = counter
         self.startExpr = startExpr
         self.stopExpr = stopExpr
         self.body = body
         self.isDown = isDown
+        self.type = None
 
 
 class FunctionCallExpression(Expression, ListNode, NameNode):
     def __init__(self, name, list):
-        super().__init__(None)
         self.name = name
         self.list = list
+        self.type = None
 
 
 class LetInExpression(Expression):
     def __init__(self, letdef, expr):
-        super().__init__(None)
         self.letdef = letdef
         self.expr = expr
+        self.type = None
 
 
 class IfExpression(Expression):
     def __init__(self, condition, thenExpr, elseExpr=None):
-        super().__init__(None)
         self.condition = condition
         self.thenExpr = thenExpr
         self.elseExpr = elseExpr
+        self.type = None
 
 
 class MatchExpression(Expression, ListNode):
     def __init__(self, expr, list):
-        super().__init__(None)
         self.expr = expr
         self.list = list
+        self.type = None
 
 
 class Clause(Node):
@@ -287,14 +283,15 @@ class GenidPattern(NameNode):
 
 
 class NewExpression(Expression):
-    pass
+    def __init__(self, type):
+        self.type = type
 
 
 class WhileExpression(Expression):
     def __init__(self, condition, body):
-        super().__init__(None)
         self.condition = condition
         self.body = body
+        self.type = None
 
 
 class VariableDef(Def):

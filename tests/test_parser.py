@@ -163,22 +163,22 @@ class TestParserRules(unittest.TestCase):
 
     def test_const(self):
         parse.quiet_parse("5", "expr").should.equal(
-            ast.ConstExpression(ast.Int(), 5)
+            ast.ConstExpression(5, ast.Int())
         )
         parse.quiet_parse("5.7", "expr").should.equal(
-            ast.ConstExpression(ast.Float(), 5.7)
+            ast.ConstExpression(5.7, ast.Float())
         )
         parse.quiet_parse("'z'", "expr").should.equal(
-            ast.ConstExpression(ast.Char(), "z")
+            ast.ConstExpression("z", ast.Char())
         )
         parse.quiet_parse('"z"', "expr").should.equal(
-            ast.ConstExpression(ast.String(), ["z", '\0'])
+            ast.ConstExpression(["z", '\0'], ast.String())
         )
         parse.quiet_parse("true", "expr").should.equal(
-            ast.ConstExpression(ast.Bool(), True)
+            ast.ConstExpression(True, ast.Bool())
         )
         parse.quiet_parse("()", "expr").should.equal(
-            ast.ConstExpression(ast.Unit(), None)
+            ast.ConstExpression(None, ast.Unit())
         )
 
     def test_constr(self):
@@ -246,25 +246,25 @@ class TestParserRules(unittest.TestCase):
         parse.quiet_parse("true", "pattern").should.equal(self.true)
         parse.quiet_parse("false", "pattern").should.equal(self.false)
         parse.quiet_parse("'c'", "pattern").should.equal(
-            ast.ConstExpression(ast.Char(), "c")
+            ast.ConstExpression("c", ast.Char())
         )
         parse.quiet_parse("42.0", "pattern").should.equal(
-            ast.ConstExpression(ast.Float(), 42.0)
+            ast.ConstExpression(42.0, ast.Float())
         )
         parse.quiet_parse("+.42.0", "pattern").should.equal(
-            ast.ConstExpression(ast.Float(), 42.0)
+            ast.ConstExpression(42.0, ast.Float())
         )
         parse.quiet_parse("-.42.0", "pattern").should.equal(
-            ast.ConstExpression(ast.Float(), -42.0)
+            ast.ConstExpression(-42.0, ast.Float())
         )
         parse.quiet_parse("42", "pattern").should.equal(
-            ast.ConstExpression(ast.Int(), 42)
+            ast.ConstExpression(42, ast.Int())
         )
         parse.quiet_parse("+42", "pattern").should.equal(
-            ast.ConstExpression(ast.Int(), 42)
+            ast.ConstExpression(42, ast.Int())
         )
         parse.quiet_parse("-42", "pattern").should.equal(
-            ast.ConstExpression(ast.Int(), -42)
+            ast.ConstExpression(-42, ast.Int())
         )
 
     def test_simple_pattern_seq(self):
