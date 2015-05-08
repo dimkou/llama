@@ -7,7 +7,7 @@ TESTPATH=./tests
 
 .PHONY: check clean cleanaux flake8check functionaltest prepare pylintcheck test unittest
 
-all: clean prepare check test
+all: clean check prepare test
 
 pylintcheck:
 	pylint --rcfile .pylintrc $(SOURCEFILES) $(TESTPATH)
