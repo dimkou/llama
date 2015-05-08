@@ -20,6 +20,10 @@ from ply import lex
 
 from compiler import error
 
+
+_TABLE_DIR = 'tables'
+
+
 # Represent reserved words as a frozenset for fast lookup
 reserved_words = frozenset('''
     and
@@ -529,6 +533,7 @@ class Lexer(abc.Iterator):
         self._lexer.build(
             debug=self.debug,
             optimize=self.optimize,
+            outputdir=_TABLE_DIR,
             reflags=re.ASCII
         )
 
