@@ -2,10 +2,11 @@ PYTHON=python3
 PREPARE_FLAGS=--prepare -pd
 OPT=-OO
 SOURCEFILES=main.py ./compiler/*.py
+TABLEPATH=./tables
 BINPATH=./bin
 TESTPATH=./tests
 
-.PHONY: check clean cleanaux flake8check functionaltest prepare pylintcheck test unittest
+.PHONY: check clean flake8check functionaltest prepare pylintcheck test unittest
 
 all: clean check prepare test
 
@@ -32,10 +33,5 @@ prepare:
 	$(PYTHON) main.py $(PREPARE_FLAGS)
 	$(BINPATH)/ctest.sh
 
-cleanaux:
-	$(RM) aux*.py
-
-cleanmain:
-	$(RM) lextab.py parsetab.py parser.out .coverage
-
-clean: cleanaux cleanmain
+clean:
+	$(RM) $(TABLEPATH)/*.py $(TABLEPATH)/parser.out .coverage
