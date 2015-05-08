@@ -16,6 +16,9 @@ from ply import yacc
 from compiler import ast, error, lex
 
 
+_TABLE_DIR = 'tables'
+
+
 def _track(p):
     """Add position to root of reduced grammar rule."""
     if isinstance(p[1], ast.Node):
@@ -597,13 +600,16 @@ class Parser:
             errorlog = yacc.NullLogger()
             yaccfile = "%s_%s" % ('aux', start)
 
+        tabmodule = '%s.%s' % (_TABLE_DIR, yaccfile)
+
         self.parser = yacc.yacc(
             module=self,
             errorlog=errorlog,
             debug=debug,
             optimize=optimize,
             start=start,
-            tabmodule=yaccfile
+            tabmodule=tabmodule,
+            outputdir=_TABLE_DIR
         )
 
         if verbose:
